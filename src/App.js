@@ -122,7 +122,7 @@ function App() {
                         })}
                     </Routes>
                 </LazyCom>
-                <Chatbox/>
+                {/* <Chatbox/> */}
             </DefaultLayout>
         </ScrollToTop>
     );

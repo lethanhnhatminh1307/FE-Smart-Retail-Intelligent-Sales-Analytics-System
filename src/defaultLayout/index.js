@@ -24,9 +24,9 @@ function DefaultLayout({ children }) {
             </div>}
             <div className={cx('wrapper')}>
                 <div className={cx('contain')}>
-                    {nothasLayout && <Header />}
+                    {/* {nothasLayout && <Header />} */}
                     <div className={cx('main')}>{children}</div>
-                    {nothasLayout && <Footer />}
+                    {/* {nothasLayout && <Footer />} */}
                 </div>
             </div>
         </div>
