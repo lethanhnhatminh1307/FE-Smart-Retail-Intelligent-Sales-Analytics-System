@@ -26,14 +26,14 @@ function ProductManagement() {
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchText, setSearchText] = useState('');
     const [filterType, setFilterType] = useState(null);
+    const [filteredProducts, setFilteredProducts] = useState([]);
 
     // Fetch products
     const loadProducts = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await fetchProducts(searchText, {
-                ...(filterType ? { typeProduct: filterType } : {}),
-            });
+            const data = await fetchProducts(searchText);
+
             if (data) {
                 const list = Array.isArray(data) ? data : data.data || [];
                 setProducts(list);
@@ -61,6 +61,15 @@ function ProductManagement() {
         setEditingProduct(record);
         setModalOpen(true);
     };
+
+    useEffect(() => {
+        if (!filterType) {
+            setFilteredProducts(products);
+        } else {
+            setFilteredProducts(products.filter((p) => p.type === filterType));
+        }
+    }, [products, filterType]);
+
 
     // Delete product
     const handleDelete = (record) => {
@@ -123,6 +132,9 @@ function ProductManagement() {
         const cat = category.find((c) => c.slug === slug);
         return cat ? cat.type : slug || '—';
     };
+
+    console.log('category:', category);
+    console.log('filterType:', filterType);
 
     // Table columns
     const columns = [
@@ -265,7 +277,7 @@ function ProductManagement() {
             {/* Table */}
             <Table
                 columns={columns}
-                dataSource={products}
+                dataSource={filteredProducts}
                 rowKey={(record) => record._id}
                 loading={loading}
                 pagination={{
