@@ -6,6 +6,7 @@
     top: 0;
     transition: 1s ease;  
     z-index: 999;
+    overflow: hidden;
 
 }
 
@@ -16,7 +17,7 @@
 }
 
 .img-logo {
-    width: 120px;
+    width: 74px;
     object-fit: cover;
     padding-right: 5px;
     padding-top: 15px;

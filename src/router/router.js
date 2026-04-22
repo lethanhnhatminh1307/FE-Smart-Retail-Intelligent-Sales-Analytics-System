@@ -41,6 +41,7 @@ const Login = lazy(() => import('~/Component/page/login'));
 const Register = lazy(() => import('~/Component/page/register'));
 const updateInfoOfUser = lazy(() => import('~/Component/page/updateInfoOfUser'));
 const UploadProduct = lazy(() => import('~/Component/page/uploadProduct'));
+const ProductManagement = lazy(() => import('~/Component/page/productManagement'));
 const DisableAccount = lazy(() => import('~/Component/page/disableAccount'));
 const ChangePassword = lazy(() => import('~/Component/page/changePassword'));
 const Category = lazy(() => import('~/Component/page/category'));
@@ -70,13 +71,8 @@ export const layoutPrivate = [
 
 export const layout_employee_manager = [
     {
-        element: UploadProduct,
-        path: '/upload-product',
-        slug:true
-    },
-    {
-        element: UploadProduct,
-        path:'/modify'
+        element: ProductManagement,
+        path: '/quan-ly-san-pham',
     },
     {
         element: SeeOrder,
@@ -166,19 +162,19 @@ export const layoutPublic = [
         path: '/',
     },
     {
-        element: Introduct,
+        // element: Introduct,
         path: '/gioi-thieu',
     },
     {
-        element: Contact,
+        // element: Contact,
         path: '/lien-he',
     },
     {
-        element: Brand,
+        // element: Brand,
         path: '/thuong-hieu',
     },
     {
-        element: Collection,
+        // element: Collection,
         path: '/bo-suu-tap',
     },
     {
@@ -188,7 +184,7 @@ export const layoutPublic = [
     },
 
     {
-        element: NewsAndEvent,
+        // element: NewsAndEvent,
         path: '/tin-tuc-su-kien',
     },
     {

@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
 import classNames from 'classnames/bind';
-import logo from '~/media/image/logo/logo_ca_footer.png';
+import logo from '~/media/image/logo/logonew.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faInstagram, faYoutube } from '@fortawesome/free-brands-svg-icons';
 const cx = classNames.bind(styles);
