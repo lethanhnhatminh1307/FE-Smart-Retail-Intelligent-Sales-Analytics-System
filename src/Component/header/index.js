@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
 import classNames from 'classnames/bind';
-import logo from '~/media/image/logo/logo_header.gif';
+import logo from '~/media/image/logo/logonew.png';
 import Func from './function/index';
 import Tool from './tool';
 import { Link } from 'react-router-dom';

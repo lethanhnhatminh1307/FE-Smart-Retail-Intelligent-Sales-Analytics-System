@@ -11,12 +11,12 @@ const cx = classNames.bind(styles);
 
 function DefaultLayout({ children }) {
     const path = useLocation()
-    
+
     const nothasLayout = !path.pathname.includes('/account')
 
     console.log(nothasLayout);
-    
-    
+
+
     return (
         <div className={cx('wrapper-contain')}>
             {nothasLayout && <div className={cx('begin')}>
@@ -24,9 +24,9 @@ function DefaultLayout({ children }) {
             </div>}
             <div className={cx('wrapper')}>
                 <div className={cx('contain')}>
-                    {/* {nothasLayout && <Header />} */}
+                    {nothasLayout && <Header />}
                     <div className={cx('main')}>{children}</div>
-                    {/* {nothasLayout && <Footer />} */}
+                    {nothasLayout && <Footer />}
                 </div>
             </div>
         </div>

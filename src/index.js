@@ -6,6 +6,8 @@ import { BrowserRouter } from 'react-router-dom';
 import GlobalContext from '~/GlobalContext';
 import GlobalStyles from '~/globalStyles/index';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
+import NotifyContainer from '~/utils/notification';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     // <React.StrictMode>
@@ -19,6 +21,7 @@ root.render(
             <BrowserRouter>
                 <GlobalStyles>
                     <App />
+                    <NotifyContainer />
                 </GlobalStyles>
             </BrowserRouter>
         </GlobalContext>
