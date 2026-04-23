@@ -3,26 +3,29 @@ import classNames from 'classnames/bind';
 import Button from '~/button';
 import Input from '~/Input';
 import DatePicker from 'react-date-picker';
-import { createRef, useMemo, useRef, useState } from 'react';
+import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'universal-cookie';
 import { updateInfoOfUser } from '~/api-server/updateInfoOfUser';
 import Loading from '~/utils/loading';
 import NotifyContainer, { notify } from '~/utils/notification';
+import { getInfoOfUser } from '~/api-server/getInfoOfUser';
 
 const cx = classNames.bind(styles);
 
-const cookies = new Cookies();
-const listInput = [
-    { name: 'name', defaultValue: cookies.get('name'), placeholder: 'Họ và tên', type: 'text' },
-    { name: 'phoneNumber', defaultValue: cookies.get('phoneNumber'), placeholder: 'Số điện thoại', type: 'text' },
-    { name: 'address', defaultValue: cookies.get('address'), placeholder: 'Địa chỉ', type: 'text' },
-    { name: 'email', defaultValue: cookies.get('email'), placeholder: 'Email', type: 'email' },
-];
+
 
 function UpdateInfoOfUser() {
+    const cookies = new Cookies();
+    const listInput = [
+        { name: 'name', defaultValue: cookies.get('name'), placeholder: 'Họ và tên', type: 'text' },
+        { name: 'phoneNumber', defaultValue: cookies.get('phoneNumber'), placeholder: 'Số điện thoại', type: 'text' },
+        { name: 'address', defaultValue: cookies.get('address'), placeholder: 'Địa chỉ', type: 'text' },
+        { name: 'email', defaultValue: cookies.get('email'), placeholder: 'Email', type: 'email' },
+    ];
     const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [infoUser, setInfoUser] = useState(listInput);
     const imgRef = useRef();
     const sexRef = useRef();
     const newDateBirthday = cookies.get('birthday') ? new Date(cookies.get('birthday')) : new Date();
@@ -67,6 +70,13 @@ function UpdateInfoOfUser() {
         if (data && data.success) {
             setLoadingSubmit(false);
             notify('success', 'Cập nhật thành công');
+            cookies.set('name', data?.name || '');
+            cookies.set('phoneNumber', data?.phoneNumber || '');
+            cookies.set('address', data?.address || '');
+            cookies.set('email', data?.email || '');
+            cookies.set('birthday', data?.birthday || '');
+            cookies.set('sex', data?.sex || '')
+
         } else {
             setLoadingSubmit(false);
             notify('warning', 'Lỗi cập nhât, mời thử lại');
@@ -80,7 +90,7 @@ function UpdateInfoOfUser() {
             <div className={cx('container', { grid: true })}>
                 <div className={cx('informations', '')}>
                     <div>
-                        {listInput.map((item, i) => (
+                        {infoUser.map((item, i) => (
                             <Input
                                 key={i}
                                 ref={refInputs[i]}
