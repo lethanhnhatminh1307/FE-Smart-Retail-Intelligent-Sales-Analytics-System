@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
-import { Modal, Form, Select, InputNumber, Input, Upload } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Modal, Form, Select, InputNumber, Input, Upload, Space, Button } from 'antd';
+import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { Context } from '~/GlobalContext';
 import { notify } from '~/utils/notification';
 
@@ -22,7 +22,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                     name: editingProduct.name || '',
                     type: editingProduct.type || undefined,
                     price: editingProduct.price,
-                    size: editingProduct.size ? editingProduct.size.join(' ') : '',
+                    variants: editingProduct.variants?.length ? editingProduct.variants : [{ size: '', stock: 0 }],
                     description: editingProduct.description || '',
                 });
                 // Set existing images for preview
@@ -35,6 +35,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 setFileList(imgs);
             } else {
                 form.resetFields();
+                form.setFieldsValue({ variants: [{ size: '', stock: 0 }] });
                 setFileList([]);
             }
         }
@@ -46,7 +47,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
 
             const formData = new FormData();
             formData.append('price', values.price);
-            formData.append('size', values.size);
+            formData.append('variants', JSON.stringify(values.variants || []));
             formData.append('type', values.type);
             formData.append('description', values.description || '');
             formData.append('id', localStorage?.id || null);
@@ -161,12 +162,39 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                     />
                 </Form.Item>
 
-                <Form.Item
-                    name="size"
-                    label="Size"
-                    rules={[{ required: true, message: 'Vui lòng nhập size' }]}
-                >
-                    <Input placeholder="Nhập size (VD: S M L XL)" />
+                <Form.Item label="Biến thể (Size & Số lượng)" required>
+                    <Form.List name="variants">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'size']}
+                                            rules={[{ required: true, message: 'Nhập size' }]}
+                                        >
+                                            <Input placeholder="Size (VD: M, 40)" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'stock']}
+                                            rules={[{ required: true, message: 'Nhập số lượng' }]}
+                                        >
+                                            <InputNumber placeholder="Số lượng" min={0} />
+                                        </Form.Item>
+                                        {fields.length > 1 ? (
+                                            <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                        ) : null}
+                                    </Space>
+                                ))}
+                                <Form.Item>
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Thêm Size mới
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
                 </Form.Item>
 
                 <Form.Item name="description" label="Mô tả sản phẩm">

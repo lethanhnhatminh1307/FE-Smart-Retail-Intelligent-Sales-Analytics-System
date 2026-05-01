@@ -67,7 +67,12 @@ function Introduct() {
     }
     useEffect(() => {
         setImage(product?.image? product?.image[0]:'')
-        setSize(product.size?product.size[0]:'')
+        if (product?.variants && product.variants.length > 0) {
+            const firstAvailable = product.variants.find(v => v.stock > 0) || product.variants[0];
+            setSize(firstAvailable.size);
+        } else {
+            setSize('');
+        }
     }, [JSON.stringify(product)]);
     //
     return (
@@ -99,25 +104,27 @@ function Introduct() {
                     <div className={cx('product-type')}>
                         <span>Kích thước:</span>
                         <div className={cx('product-size')}>
-                            {(product?.size || []).map((item, index) => (
+                            {(product?.variants || []).map((item, index) => (
                                 <button
-                                    value={item}
+                                    value={item.size}
                                     onClick={(e) => {
-                                        setInfoProduct((props) => ({ ...props, size: item }));
+                                        setInfoProduct((props) => ({ ...props, size: item.size }));
                                         setISize(index);
                                         setSize(e.target.value);
                                     }}
-                                    className={cx({ active: size === item})}
+                                    disabled={item.stock === 0}
+                                    className={cx({ active: size === item.size, disabled: item.stock === 0 })}
+                                    style={{ opacity: item.stock === 0 ? 0.5 : 1, cursor: item.stock === 0 ? 'not-allowed' : 'pointer' }}
                                     key={index}
                                 >
-                                    {item}
+                                    {item.size}
                                 </button>
                             ))}
                         </div>
                     </div>
                     <div className={cx('product-number')}>
                         <h4>Số lượng:</h4>
-                        <span>{product?.number}</span>
+                        <span>{product?.variants?.find(v => v.size === size)?.stock || 0}</span>
                     </div>
                 </div>
                 <div className={cx('count-and-add')}>
