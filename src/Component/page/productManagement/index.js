@@ -184,26 +184,47 @@ function ProductManagement() {
         },
         {
             title: 'Giá',
-            dataIndex: 'price',
             key: 'price',
-            width: 140,
-            sorter: (a, b) => (a.price || 0) - (b.price || 0),
-            render: (price) => (
-                <span className="product-price-cell">{dotMoney(price)} VNĐ</span>
-            ),
+            width: 160,
+            sorter: (a, b) => {
+                const minA = a.variants?.length ? Math.min(...a.variants.map(v => v.price || 0)) : 0;
+                const minB = b.variants?.length ? Math.min(...b.variants.map(v => v.price || 0)) : 0;
+                return minA - minB;
+            },
+            render: (_, record) => {
+                if (!record.variants || record.variants.length === 0) return '—';
+                const prices = record.variants.map(v => v.price).filter(p => p !== undefined && p !== null);
+                if (prices.length === 0) return '—';
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
+                if (minPrice === maxPrice) {
+                    return <span className="product-price-cell">{dotMoney(minPrice)} VNĐ</span>;
+                }
+                return <span className="product-price-cell">{dotMoney(minPrice)} - {dotMoney(maxPrice)} VNĐ</span>;
+            },
         },
         {
             title: 'Size',
-            dataIndex: 'size',
+            dataIndex: 'variants',
             key: 'size',
             width: 150,
-            render: (sizes) => (
+            render: (variants) => (
                 <span className="product-size-cell">
-                    {(sizes || []).map((s, i) => (
-                        <Tag key={i}>{s}</Tag>
+                    {(variants || []).map((v, i) => (
+                        <Tag key={i} color="cyan">{v.size}</Tag>
                     ))}
                 </span>
             ),
+        },
+        {
+            title: 'Tổng kho',
+            key: 'stock',
+            width: 100,
+            align: 'center',
+            render: (_, record) => {
+                const total = (record.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0);
+                return <b>{total}</b>;
+            }
         },
         {
             title: 'Hành động',

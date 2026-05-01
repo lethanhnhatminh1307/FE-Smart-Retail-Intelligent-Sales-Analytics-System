@@ -21,8 +21,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 form.setFieldsValue({
                     name: editingProduct.name || '',
                     type: editingProduct.type || undefined,
-                    price: editingProduct.price,
-                    variants: editingProduct.variants?.length ? editingProduct.variants : [{ size: '', stock: 0 }],
+                    variants: editingProduct.variants?.length ? editingProduct.variants : [{ size: '', stock: undefined, price: undefined, sku: '' }],
                     description: editingProduct.description || '',
                 });
                 // Set existing images for preview
@@ -35,7 +34,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 setFileList(imgs);
             } else {
                 form.resetFields();
-                form.setFieldsValue({ variants: [{ size: '', stock: 0 }] });
+                form.setFieldsValue({ variants: [{ size: '', stock: undefined, price: undefined, sku: '' }] });
                 setFileList([]);
             }
         }
@@ -46,7 +45,6 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
             const values = await form.validateFields();
 
             const formData = new FormData();
-            formData.append('price', values.price);
             formData.append('variants', JSON.stringify(values.variants || []));
             formData.append('type', values.type);
             formData.append('description', values.description || '');
@@ -149,22 +147,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                     </Select>
                 </Form.Item>
 
-                <Form.Item
-                    name="price"
-                    label="Giá bán"
-                    rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
-                >
-                    <InputNumber
-                        min={1}
-                        style={{ width: '100%' }}
-                        placeholder="Nhập giá bán"
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        parser={(value) => value.replace(/,/g, '')}
-                        addonAfter="VNĐ"
-                    />
-                </Form.Item>
-
-                <Form.Item label="Biến thể (Size & Số lượng)" required>
+                <Form.Item label="Phân loại hàng (Size, Giá, Tồn kho)" required>
                     <Form.List name="variants">
                         {(fields, { add, remove }) => (
                             <>
@@ -172,17 +155,36 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                     <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                                         <Form.Item
                                             {...restField}
+                                            name={[name, 'sku']}
+                                        >
+                                            <Input placeholder="SKU (VD: SP01-M)" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
                                             name={[name, 'size']}
                                             rules={[{ required: true, message: 'Nhập size' }]}
                                         >
-                                            <Input placeholder="Size (VD: M, 40)" />
+                                            <Input placeholder="Size (VD: M)" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'price']}
+                                            rules={[{ required: true, message: 'Nhập giá' }]}
+                                        >
+                                            <InputNumber
+                                                placeholder="Giá bán"
+                                                min={0}
+                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                parser={(value) => value.replace(/,/g, '')}
+                                                style={{ width: 130 }}
+                                            />
                                         </Form.Item>
                                         <Form.Item
                                             {...restField}
                                             name={[name, 'stock']}
                                             rules={[{ required: true, message: 'Nhập số lượng' }]}
                                         >
-                                            <InputNumber placeholder="Số lượng" min={0} />
+                                            <InputNumber placeholder="Kho" min={0} style={{ width: 100 }} />
                                         </Form.Item>
                                         {fields.length > 1 ? (
                                             <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
