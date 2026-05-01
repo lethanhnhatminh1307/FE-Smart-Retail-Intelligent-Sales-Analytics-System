@@ -119,6 +119,8 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
             confirmLoading={loading}
             width={640}
             destroyOnClose
+            centered
+            styles={{ body: { overflowY: 'auto', maxHeight: '60vh', paddingRight: '8px' } }}
         >
             <Form
                 form={form}
