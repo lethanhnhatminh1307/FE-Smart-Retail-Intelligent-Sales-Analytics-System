@@ -1,8 +1,9 @@
 import { useEffect, useState, useContext } from 'react';
-import { Modal, Form, Select, InputNumber, Input, Upload, Space, Button } from 'antd';
+import { Modal, Form, Select, InputNumber, Input, Upload, Space, Button, Image } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { Context } from '~/GlobalContext';
 import { notify } from '~/utils/notification';
+import { convertImageToBase64 } from '~/utils/converImageToBase64';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -10,91 +11,53 @@ const { Option } = Select;
 function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading }) {
     const [form] = Form.useForm();
     const [{ category }] = useContext(Context);
-    const [fileList, setFileList] = useState([]);
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
 
     const isEditMode = !!editingProduct;
 
-    // Pre-fill form when editing
+    // =========================
+    // INIT FORM (ADD + EDIT)
+    // =========================
     useEffect(() => {
-        if (open) {
-            if (isEditMode) {
-                form.setFieldsValue({
-                    name: editingProduct.name || '',
-                    type: editingProduct.type || undefined,
-                    variants: editingProduct.variants?.length ? editingProduct.variants : [{ size: '', stock: undefined, price: undefined, sku: '' }],
-                    description: editingProduct.description || '',
-                });
-                // Set existing images for preview
-                const imgs = (editingProduct.image || []).map((url, index) => ({
-                    uid: `existing-${index}`,
-                    name: `image-${index}`,
-                    status: 'done',
-                    url: url,
-                }));
-                setFileList(imgs);
-            } else {
-                form.resetFields();
-                form.setFieldsValue({ variants: [{ size: '', stock: undefined, price: undefined, sku: '' }] });
-                setFileList([]);
-            }
+        if (!open) return;
+
+        if (isEditMode) {
+            form.setFieldsValue({
+                name: editingProduct.name || '',
+                type: editingProduct.type || undefined,
+                description: editingProduct.description || '',
+                variants: editingProduct.variants?.length
+                    ? editingProduct.variants.map((item, index) => ({
+                          ...item,
+                          sku: item.sku
+                              ? [
+                                    {
+                                        uid: `old-${index}`,
+                                        name: 'image.png',
+                                        status: 'done',
+                                        url: item.sku, // URL hoặc base64 từ backend
+                                    },
+                                ]
+                              : [],
+                      }))
+                    : [{ size: '', stock: undefined, price: undefined, sku: [] }],
+            });
+        } else {
+            form.resetFields();
+            form.setFieldsValue({
+                variants: [{ size: '', stock: undefined, price: undefined, sku: [] }],
+            });
         }
     }, [open, editingProduct, isEditMode, form]);
 
-    const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-
-            const formData = new FormData();
-            formData.append('variants', JSON.stringify(values.variants || []));
-            formData.append('type', values.type);
-            formData.append('description', values.description || '');
-            formData.append('id', localStorage?.id || null);
-
-            // Separate new files and existing URLs
-            const newFiles = [];
-            const keepExisting = [];
-
-            fileList.forEach((file) => {
-                if (file.originFileObj) {
-                    // New file uploaded by user
-                    newFiles.push(file.originFileObj);
-                } else if (file.url) {
-                    // Existing image URL
-                    keepExisting.push(file.url);
-                }
-            });
-
-            newFiles.forEach((file) => {
-                formData.append('image', file);
-            });
-
-            keepExisting.forEach((url) => {
-                formData.append('fileUpdate', url);
-            });
-
-            formData.append('name', values.name);
-
-            if (isEditMode) {
-                formData.append('idProduct', editingProduct._id);
-            }
-
-            const config = {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            };
-
-            onSubmit(formData, config, isEditMode);
-        } catch (error) {
-            console.log('Validation failed:', error);
-            notify('error', 'Vui lòng kiểm tra lại thông tin!');
-        }
-    };
-
-    const handleUploadChange = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
-
+    // =========================
+    // PREVIEW IMAGE
+    // =========================
     const handlePreview = async (file) => {
         let src = file.url;
+
         if (!src) {
             src = await new Promise((resolve) => {
                 const reader = new FileReader();
@@ -102,129 +65,175 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 reader.onload = () => resolve(reader.result);
             });
         }
-        const imgWindow = window.open(src);
-        imgWindow?.document.write(`<img src="${src}" style="max-width:100%"/>`);
+
+        setPreviewImage(src);
+        setPreviewOpen(true);
     };
 
+    // =========================
+    // SUBMIT
+    // =========================
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+
+            const variants = await Promise.all(
+                values.variants.map(async (item) => {
+                    let base64 = '';
+
+                    if (item.sku?.length > 0 && item.sku[0]?.originFileObj) {
+                        base64 = await convertImageToBase64(item.sku[0].originFileObj);
+                    } else if (item.sku?.length > 0 && item.sku[0]?.url) {
+                        // giữ ảnh cũ khi edit
+                        base64 = item.sku[0].url;
+                    }
+
+                    return {
+                        ...item,
+                        sku: base64,
+                    };
+                }),
+            );
+
+            const formData = new FormData();
+            formData.append('variants', JSON.stringify(variants));
+            formData.append('type', values.type);
+            formData.append('description', values.description || '');
+            formData.append('name', values.name);
+            formData.append('id', localStorage?.id || null);
+
+            if (isEditMode) {
+                formData.append('idProduct', editingProduct._id);
+            }
+
+            onSubmit(
+                formData,
+                {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                },
+                isEditMode,
+            );
+        } catch (err) {
+            console.log(err);
+            notify('error', 'Vui lòng kiểm tra lại thông tin!');
+        }
+    };
+
+    // =========================
+    // UI
+    // =========================
     return (
-        <Modal
-            title={isEditMode ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
-            open={open}
-            onOk={handleOk}
-            onCancel={onCancel}
-            okText={isEditMode ? 'Cập nhật' : 'Thêm'}
-            cancelText="Hủy"
-            confirmLoading={loading}
-            width={640}
-            destroyOnClose
-            centered
-            styles={{ body: { overflowY: 'auto', maxHeight: '60vh', paddingRight: '8px' } }}
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                style={{ marginTop: 16 }}
+        <>
+            <Modal
+                title={isEditMode ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm'}
+                open={open}
+                onOk={handleOk}
+                onCancel={onCancel}
+                okText={isEditMode ? 'Cập nhật' : 'Thêm'}
+                confirmLoading={loading}
+                width={750}
+                centered
             >
-                <Form.Item
-                    name="name"
-                    label="Tên sản phẩm"
-                    rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm' }]}
-                >
-                    <Input placeholder="Nhập tên sản phẩm" />
-                </Form.Item>
+                <Form form={form} layout="vertical">
+                    {/* NAME */}
+                    <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
 
-                <Form.Item
-                    name="type"
-                    label="Loại sản phẩm"
-                    rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
-                >
-                    <Select placeholder="Chọn loại sản phẩm">
-                        {category.map((item) => (
-                            <Option key={item.slug} value={item.slug}>
-                                {item.type}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                    {/* TYPE */}
+                    <Form.Item name="type" label="Loại" rules={[{ required: true }]}>
+                        <Select>
+                            {category.map((item) => (
+                                <Option key={item.slug} value={item.slug}>
+                                    {item.type}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
 
-                <Form.Item label="Phân loại hàng (Size, Giá, Tồn kho)" required>
-                    <Form.List name="variants">
-                        {(fields, { add, remove }) => (
-                            <>
-                                {fields.map(({ key, name, ...restField }) => (
-                                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'sku']}
-                                        >
-                                            <Input placeholder="SKU (VD: SP01-M)" />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'size']}
-                                            rules={[{ required: true, message: 'Nhập size' }]}
-                                        >
-                                            <Input placeholder="Size (VD: M)" />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'price']}
-                                            rules={[{ required: true, message: 'Nhập giá' }]}
-                                        >
-                                            <InputNumber
-                                                placeholder="Giá bán"
-                                                min={0}
-                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={(value) => value.replace(/,/g, '')}
-                                                style={{ width: 130 }}
-                                            />
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'stock']}
-                                            rules={[{ required: true, message: 'Nhập số lượng' }]}
-                                        >
-                                            <InputNumber placeholder="Kho" min={0} style={{ width: 100 }} />
-                                        </Form.Item>
-                                        {fields.length > 1 ? (
-                                            <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
-                                        ) : null}
-                                    </Space>
-                                ))}
-                                <Form.Item>
+                    {/* VARIANTS */}
+                    <Form.Item label="Variants">
+                        <Form.List name="variants">
+                            {(fields, { add, remove }) => (
+                                <>
+                                    {fields.map(({ key, name, ...restField }) => (
+                                        <Space key={key} align="start" style={{ display: 'flex', marginBottom: 8 }}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'size']}
+                                                rules={[{ required: true }]}
+                                            >
+                                                <Input placeholder="Size" />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'price']}
+                                                rules={[{ required: true }]}
+                                            >
+                                                <InputNumber placeholder="Giá" />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'stock']}
+                                                rules={[{ required: true }]}
+                                            >
+                                                <InputNumber placeholder="Kho" />
+                                            </Form.Item>
+
+                                            {/* UPLOAD (SMALL + PREVIEW) */}
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'sku']}
+                                                valuePropName="fileList"
+                                                getValueFromEvent={(e) => e?.fileList}
+                                            >
+                                                <Upload
+                                                    listType="picture-card"
+                                                    beforeUpload={() => false}
+                                                    maxCount={1}
+                                                    onPreview={handlePreview}
+                                                    className="small-upload"
+                                                >
+                                                    <Button size="small">Upload</Button>
+                                                </Upload>
+                                            </Form.Item>
+
+                                            {fields.length > 1 && (
+                                                <MinusCircleOutlined
+                                                    onClick={() => remove(name)}
+                                                    style={{ color: 'red' }}
+                                                />
+                                            )}
+                                        </Space>
+                                    ))}
+
                                     <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                        Thêm Size mới
+                                        Thêm variant
                                     </Button>
-                                </Form.Item>
-                            </>
-                        )}
-                    </Form.List>
-                </Form.Item>
+                                </>
+                            )}
+                        </Form.List>
+                    </Form.Item>
 
-                <Form.Item name="description" label="Mô tả sản phẩm">
-                    <TextArea rows={3} placeholder="Mô tả sản phẩm..." />
-                </Form.Item>
+                    {/* DESCRIPTION */}
+                    <Form.Item name="description" label="Mô tả">
+                        <TextArea rows={3} />
+                    </Form.Item>
+                </Form>
+            </Modal>
 
-                <Form.Item label="Hình ảnh / Video">
-                    <Upload
-                        listType="picture-card"
-                        fileList={fileList}
-                        onChange={handleUploadChange}
-                        onPreview={handlePreview}
-                        beforeUpload={() => false}
-                        accept=".jpg,.png,.mp4"
-                        multiple
-                    >
-                        {fileList.length >= 10 ? null : (
-                            <div>
-                                <PlusOutlined />
-                                <div style={{ marginTop: 8 }}>Thêm ảnh</div>
-                            </div>
-                        )}
-                    </Upload>
-                </Form.Item>
-            </Form>
-        </Modal>
+            {/* PREVIEW MODAL */}
+            <Image
+                style={{ display: 'none' }}
+                preview={{
+                    visible: previewOpen,
+                    onVisibleChange: (v) => setPreviewOpen(v),
+                    src: previewImage,
+                }}
+            />
+        </>
     );
 }
 

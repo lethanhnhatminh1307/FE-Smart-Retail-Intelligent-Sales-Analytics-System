@@ -9,7 +9,6 @@ import { useState, useContext, useEffect } from 'react';
 import { Context as ContextProduct } from '../../ConetextProduct';
 import { Context } from '~/GlobalContext';
 
-
 // import api
 import { add } from '~/api-server/cartService';
 import { CART } from '~/GlobalContext/key';
@@ -32,28 +31,27 @@ function Introduct() {
     const [isLoading, setIsLoading] = useState(false);
     const [addSuccess, setAddSuccess] = useState(false);
     // handle event
-    const { product,nameType } = datas;
+    const { product, nameType } = datas;
+
+    const currentVariant = product?.variants?.find((v) => v.size === size);
+
     // const { cart } = states;
-    const [{category},dispatchContext] = useContext(Context)
-    const [image,setImage] = useState(product?.image? product?.image[0]:'');
+    const [{ category }, dispatchContext] = useContext(Context);
+    const [image, setImage] = useState();
+
+    console.log(image);
+
     const addIntoCart = (e) => {
         (async function () {
             try {
                 setIsLoading(true);
-                const { success, data,...others } = await add(
-                    product?._id,
-                    size,
-                    number,
-                    product?.price,
-                    image
-                );
+                const { success, data, ...others } = await add(product?._id, size, number, currentVariant?.price, image);
                 if (success) {
                     dispatch({ key: CART, value: data });
-                    notify('success',others.message)
+                    notify('success', others.message);
                     setIsLoading(false);
-                }
-                else{
-                    notify('warning',others.message);
+                } else {
+                    notify('warning', others.message);
                     setIsLoading(false);
                 }
             } catch (error) {
@@ -63,29 +61,43 @@ function Introduct() {
     };
 
     const handleClickChangeImage = (item) => {
-        setImage(item)
-    }
+        setImage(item);
+    };
     useEffect(() => {
-        setImage(product?.image? product?.image[0]:'')
+        setImage(product?.variants?.[0]?.sku ?? '');
+
         if (product?.variants && product.variants.length > 0) {
-            const firstAvailable = product.variants.find(v => v.stock > 0) || product.variants[0];
+            const firstAvailable = product.variants.find((v) => v.stock > 0) || product.variants[0];
             setSize(firstAvailable.size);
         } else {
             setSize('');
         }
-    }, [JSON.stringify(product)]);
+    }, [product?.image, product.variants]);
     //
     return (
         <div className={cx('wrapper')}>
             <NotifyContainer />
             {addSuccess && <Announcement />}
             <div className={cx('img-product')}>
-                {image?.includes('.mp4')? <video controls className={cx('video')}><source src={image} type="video/mp4"/></video> :<img src={image} />}
+                {image?.includes('.mp4') ? (
+                    <video controls className={cx('video')}>
+                        <source src={image} type="video/mp4" />
+                    </video>
+                ) : (
+                    <img src={image} />
+                )}
                 <div className={cx('contain-image')}>
-                    {(product.image || []).map((item,key)=> {
-                        const Tag = item?.includes('.mp4')?'video':'img'
-                        return <Tag key={key} onClick={()=>handleClickChangeImage(item)} className={cx('contain-image-item',{active:item === image})} src={item} />
-                    })} 
+                    {(product.image || []).map((item, key) => {
+                        const Tag = item?.includes('.mp4') ? 'video' : 'img';
+                        return (
+                            <Tag
+                                key={key}
+                                onClick={() => handleClickChangeImage(item)}
+                                className={cx('contain-image-item', { active: item === image })}
+                                src={item}
+                            />
+                        );
+                    })}
                 </div>
             </div>
             <div className={cx('main-info')}>
@@ -95,11 +107,11 @@ function Introduct() {
                     </Link>
                     <span>/</span>
                     <Link className={cx('link')} to={`/cua-hang/${nameType?.slug}`}>
-                       {nameType?.type?.toUpperCase()}
+                        {nameType?.type?.toUpperCase()}
                     </Link>
                 </span>
                 <h1 className={cx('name-product')}>{product?.name}</h1>
-                <h1 className={cx('price-product')}>{`${dotMoney(product?.price)} VNĐ`}</h1>
+                <h1 className={cx('price-product')}>{`${dotMoney(currentVariant?.price)} VNĐ`}</h1>
                 <div className={cx('contain-type-number')}>
                     <div className={cx('product-type')}>
                         <span>Kích thước:</span>
@@ -114,7 +126,10 @@ function Introduct() {
                                     }}
                                     disabled={item.stock === 0}
                                     className={cx({ active: size === item.size, disabled: item.stock === 0 })}
-                                    style={{ opacity: item.stock === 0 ? 0.5 : 1, cursor: item.stock === 0 ? 'not-allowed' : 'pointer' }}
+                                    style={{
+                                        opacity: item.stock === 0 ? 0.5 : 1,
+                                        cursor: item.stock === 0 ? 'not-allowed' : 'pointer',
+                                    }}
                                     key={index}
                                 >
                                     {item.size}
@@ -124,11 +139,11 @@ function Introduct() {
                     </div>
                     <div className={cx('product-number')}>
                         <h4>Số lượng:</h4>
-                        <span>{product?.variants?.find(v => v.size === size)?.stock || 0}</span>
+                        <span>{product?.variants?.find((v) => v.size === size)?.stock || 0}</span>
                     </div>
                 </div>
                 <div className={cx('count-and-add')}>
-                    <CountNumber setNumber={setNumber} number={number} />
+                    <CountNumber setNumber={setNumber} number={number} maxAmount={currentVariant?.stock || 0} />
                     <Button onClick={addIntoCart} ishover classNames={cx('add-cart')}>
                         {!isLoading ? (
                             'THÊM VÀO GIỎ'
@@ -157,10 +172,11 @@ function Introduct() {
                 </div>
                 <div className={cx('category')}>
                     <span>Danh mục:</span>
-                    {category.map((item,index)=> <Link key={index} to={`/cua-hang/${item.slug}`}>
-                        {`${item.type}${index<category.length-1?',':''}`}
+                    {category.map((item, index) => (
+                        <Link key={index} to={`/cua-hang/${item.slug}`}>
+                            {`${item.type}${index < category.length - 1 ? ',' : ''}`}
                         </Link>
-                    )}
+                    ))}
                 </div>
             </div>
         </div>

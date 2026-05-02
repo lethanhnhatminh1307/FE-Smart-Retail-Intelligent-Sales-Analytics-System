@@ -151,7 +151,9 @@ function ProductManagement() {
             width: 80,
             align: 'center',
             render: (_, record) => {
-                const img = record.image?.find((i) => !i?.includes('.mp4')) || record.image?.[0];
+                console.log(record);
+                
+                const img = record?.variants?.[0]?.sku || ''
                 return img ? (
                     <Image
                         src={img}

@@ -56,17 +56,18 @@ function Begin() {
                                 <Render classNames={cx('render-tippy')} attrs={attrs}>
                                     <div className={cx('list-items')}>
                                         <Link to={'/cap-nhat-thong-tin'}>Thông tin</Link>
-                                        {(localStorage.role === 'manager' ) && (
+                                        {localStorage.role === 'manager' && (
                                             <>
                                                 <Tippy
                                                     hideOnClick={false}
                                                     offset={[30, 14]}
-                                                     placement="left"
-                                                     interactiveBorder={0}
-                                                     interactive
-                                                    render={(attrsss)=>(
+                                                    placement="left"
+                                                    interactiveBorder={0}
+                                                    interactive
+                                                    render={(attrsss) => (
                                                         <Render attrs={attrsss}>
-                                                            {/* <Link to={'/quan-ly/danh-muc'}>Cập nhật danh mục</Link>
+                                                            <Link to={'/quan-ly/danh-muc'}>Cập nhật danh mục</Link>
+                                                            {/* 
                                                             <Link to={'/upload-product'}>Cập nhật sản phẩm</Link>
                                                             <Link to={'/quan-ly/cap-nhat-thong-tin-ql/nha-cung-cap'}>Cập nhật nhà cung cấp</Link>
                                                             <Link to={'/quan-ly/cap-nhat-thong-tin-ql/ten-san-pham'}>Cập nhật tên sản phẩm</Link> */}
@@ -79,9 +80,8 @@ function Begin() {
                                                 <Link to={'/quan-ly/vo-hieu-hoa-tai-khoan'}>Vô hiệu hóa tài khoản</Link>
                                             </>
                                         )}
-                                        {localStorage.role === 'manager' &&(
+                                        {localStorage.role === 'manager' && (
                                             <>
-                                                
                                                 {/* <Link to={'/see-order'}>Xác nhận đơn hàng</Link>
                                                 <Link to={'/all-bought'}>Cập nhật đơn hàng tự giao</Link>
                                                 <Link to={'/create-post'}>Tạo bài viết</Link>
@@ -113,7 +113,7 @@ function Begin() {
                                         {/* <Link to='/my-order'>Xem đơn hàng</Link> */}
                                         {/* <Link>Đăng khi thành viên</Link>
                                         <Link> Đăng kí ví ANPAY</Link> */}
-                                        <Link to='doi-mat-khau'>Đổi mật khẩu</Link>
+                                        <Link to="doi-mat-khau">Đổi mật khẩu</Link>
                                         <Link onClick={handleClickLogout}>Đăng xuất</Link>
                                     </div>
                                 </Render>

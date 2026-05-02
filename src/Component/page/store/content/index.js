@@ -38,15 +38,16 @@ function Content() {
                   });
             if (data) setData(data);
         })();
-    }, [location.state?.nameFind, params, column, type]);
+    }, [location.state?.nameFind, params, column, type, isSort]);
+
+    
 
     return (
         <div className={cx('wrapper')}>
             {data.map((item, index) => {
-                let image = item.image.find((img) => !img?.includes('.mp4'));
-                if (!image) {
-                    image = item.image[0];
-                }
+                let image = item?.variants?.[0]?.sku || '';
+                const price = item?.variants?.[0]?.price || 0;
+                
                 return (
                     <div key={index} className={cx('contain-card')}>    
                         <Card
@@ -54,7 +55,7 @@ function Content() {
                             src={image}
                             alt={item.name}
                             name={item.name}
-                            cost={item.price}
+                            cost={price}
                         />
                     </div>
                 );

@@ -88,3 +88,14 @@
     display: flex;
     gap: 8px;
 }
+
+
+.small-upload .ant-upload-list-item {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.small-upload .ant-upload-select {
+    width: 100px !important;
+    height: 100px !important;
+}

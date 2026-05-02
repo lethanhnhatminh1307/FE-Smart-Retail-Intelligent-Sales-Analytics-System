@@ -4,27 +4,31 @@ import { useRef, useState } from 'react';
 import { useEffect } from 'react';
 const cx = classNames.bind(styles);
 
-function CountNumber({ number, setNumber, setChangingProduct, data, ...props }) {
+function CountNumber({ number, setNumber, setChangingProduct, data, maxAmount = Infinity, ...props }) {
     const inputRef = useRef();
     const [amount, setAmount] = useState(number);
     const firstRender = useRef(true);
+
     const handleChangeAmount = (e) => {
         const value = e.target.value;
-        let newValue = value;
-        for (let index = 0; index < newValue.length; index++) {
-            if (newValue[index] < '0' || newValue[index] > '9') {
-                newValue = newValue.replace(newValue[index], '');
-                index--;
-            }
+        const onlyNumber = value.replace(/[^0-9]/g, '');
+        if (onlyNumber * 1 > maxAmount) {
+            setAmount(maxAmount);
+            return;
         }
-        setAmount(newValue);
+        setAmount(onlyNumber * 1);
     };
+
     const handleBlurAmount = (e) => {
-        const value = e.target.value==='0' || !e.target.value?  '1':e.target.value;
+        const value = e.target.value === '0' || !e.target.value ? '1' : e.target.value;
         setAmount(value);
     };
     const handleClickIncrease = (e) => {
         const value = amount * 1 + 1;
+        if (value > maxAmount) {
+            setAmount(maxAmount);
+            return;
+        }
         setAmount(value);
     };
     const handleClickDecrease = (e) => {
@@ -51,7 +55,14 @@ function CountNumber({ number, setNumber, setChangingProduct, data, ...props }) 
     return (
         <div className={cx('wrapper')}>
             <div className={cx('amount')}>
-                <button onClick={handleClickDecrease} className={cx('btn-amount')}>
+                <button
+                    onClick={handleClickDecrease}
+                    style={{
+                        cursor: amount === 1 ? 'not-allowed' : 'pointer',
+                        opacity: amount === 1 ? 0.5 : 1,
+                    }}
+                    className={cx('btn-amount')}
+                >
                     -
                 </button>
                 <input
@@ -62,7 +73,14 @@ function CountNumber({ number, setNumber, setChangingProduct, data, ...props }) 
                     className={cx('ip-amount')}
                     value={amount}
                 />
-                <button onClick={handleClickIncrease} className={cx('btn-amount')}>
+                <button
+                    onClick={handleClickIncrease}
+                    style={{
+                        cursor: amount === maxAmount ? 'not-allowed' : 'pointer',
+                        opacity: amount === maxAmount ? 0.5 : 1,
+                    }}
+                    className={cx('btn-amount')}
+                >
                     +
                 </button>
             </div>

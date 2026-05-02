@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Button from '~/button';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import CountNumber from '~/Component/countNumber';
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { remove } from '~/api-server/cartService';
 import { CART } from '~/GlobalContext/key';
 import Default from '~/announcement/accept';
@@ -90,9 +90,8 @@ function InfoProduct({ data }) {
                 </thead>
                 <tbody>
                     {cart.map((item, index) => {
-                       
                         const to = `/san-pham/${item?.idProduct.slug}`;
-                        const Tag = item.image?.includes('.mp4')?'video':'img'
+                        const Tag = item.image?.includes('.mp4') ? 'video' : 'img';
                         return (
                             <tr key={index}>
                                 <td>
@@ -119,6 +118,7 @@ function InfoProduct({ data }) {
                                         setChangingProduct={setChangingProduct}
                                         number={item.number}
                                         setNumber={setNumber}
+                                        maxAmount={item?.variantId?.stock || item.number}
                                     />
                                 </td>
                                 <td className={cx('tar', 'fw6')}>{`${dotMoney(item.number * item?.price)} VNĐ`}</td>
