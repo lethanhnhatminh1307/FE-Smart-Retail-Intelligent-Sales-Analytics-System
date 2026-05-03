@@ -4,19 +4,19 @@
 //         type: '',
 //     },
 //     {
-//         name: 'Cá cảnh',
-//         type: 'ca-canh',
+//         name: 'Điện tử',
+//         type: 'dien-tu',
 //     },
 //     {
-//         name: 'Thức ăn',
-//         type: 'thuc-an',
+//         name: 'Thời trang',
+//         type: 'thoi-trang',
 //     },
 //     {
-//         name: 'Hồ cá & phụ kiện',
-//         type: 'ho-ca-and-phu-kien',
+//         name: 'Gia dụng & Phụ kiện',
+//         type: 'gia-dung-and-phu-kien',
 //     },
 //     {
-//         name: 'Thuốc',
-//         type: 'thuoc',
+//         name: 'Mỹ phẩm',
+//         type: 'my-pham',
 //     },
 // ];

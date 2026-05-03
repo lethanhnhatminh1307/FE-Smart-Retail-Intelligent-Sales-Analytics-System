@@ -14,8 +14,8 @@ function IntroductStore() {
         <div className={cx('wrapper')}>
             <div className={cx('new-inform')}>
                 <div className={cx('content')}>
-                    <h4  className={cx('title-inform')}>Mừng khai trương chi nhánh mới</h4>
-                    <h1 className={cx('info-inform')}>Sale off up to 50%</h1>
+                    <h4  className={cx('title-inform')}>Khám phá hàng ngàn sản phẩm</h4>
+                    <h1 className={cx('info-inform')}>Flash Sale</h1>
                     <Link to={'cua-hang'} className={cx('see-product-inform')}>
                         Xem tất cả sản phẩm
                         <span>

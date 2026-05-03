@@ -5,7 +5,7 @@ import CountNumber from '~/Component/countNumber';
 import Button from '~/button';
 import { allLogo as logoShip } from '~/media/image/logoShip';
 import { allLogo as logoBank } from '~/media/image/logoBank';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useMemo } from 'react';
 import { Context as ContextProduct } from '../../ConetextProduct';
 import { Context } from '~/GlobalContext';
 
@@ -24,7 +24,8 @@ function Introduct() {
     const [infoProduct, setInfoProduct] = useState({});
     const [iColor, setIColor] = useState();
     const [iSize, setISize] = useState();
-    const [size, setSize] = useState([]);
+    const [selectedColor, setSelectedColor] = useState('');
+    const [size, setSize] = useState('');
     const [datas, setData] = useContext(ContextProduct);
     const [number, setNumber] = useState(1);
     const [states, dispatch] = useContext(Context);
@@ -33,7 +34,30 @@ function Introduct() {
     // handle event
     const { product, nameType } = datas;
 
-    const currentVariant = product?.variants?.find((v) => v.size === size);
+    // Danh sách màu unique
+    const uniqueColors = useMemo(() => {
+        if (!product?.variants) return [];
+        return [...new Set(product.variants.map((v) => v.color).filter(Boolean))];
+    }, [product?.variants]);
+
+    // Filter sizes theo màu đã chọn
+    const availableSizes = useMemo(() => {
+        if (!product?.variants) return [];
+        if (!selectedColor) return product.variants;
+        return product.variants.filter((v) => v.color === selectedColor);
+    }, [product?.variants, selectedColor]);
+
+    // Tìm variant hiện tại theo color + size
+    const currentVariant = useMemo(() => {
+        if (!product?.variants) return null;
+        if (selectedColor && size) {
+            return product.variants.find((v) => v.color === selectedColor && v.size === size);
+        }
+        if (size) {
+            return product.variants.find((v) => v.size === size);
+        }
+        return null;
+    }, [product?.variants, selectedColor, size]);
 
     // const { cart } = states;
     const [{ category }, dispatchContext] = useContext(Context);
@@ -45,7 +69,7 @@ function Introduct() {
         (async function () {
             try {
                 setIsLoading(true);
-                const { success, data, ...others } = await add(product?._id, size, number, currentVariant?.price, image);
+                const { success, data, ...others } = await add(product?._id, size, number, currentVariant?.price);
                 if (success) {
                     dispatch({ key: CART, value: data });
                     notify('success', others.message);
@@ -63,16 +87,32 @@ function Introduct() {
     const handleClickChangeImage = (item) => {
         setImage(item);
     };
-    useEffect(() => {
-        setImage(product?.variants?.[0]?.sku ?? '');
 
+    // Init: chọn màu + size đầu tiên có hàng
+    useEffect(() => {
         if (product?.variants && product.variants.length > 0) {
             const firstAvailable = product.variants.find((v) => v.stock > 0) || product.variants[0];
+            setSelectedColor(firstAvailable.color || '');
             setSize(firstAvailable.size);
+            setImage(firstAvailable.sku || '');
         } else {
+            setSelectedColor('');
             setSize('');
+            setImage('');
         }
-    }, [product?.image, product.variants]);
+    }, [product?.variants]);
+
+    // Khi đổi màu → chọn size đầu tiên còn hàng của màu đó
+    const handleColorChange = (color) => {
+        setSelectedColor(color);
+        const variantsOfColor = (product?.variants || []).filter((v) => v.color === color);
+        const firstAvailable = variantsOfColor.find((v) => v.stock > 0) || variantsOfColor[0];
+        if (firstAvailable) {
+            setSize(firstAvailable.size);
+            if (firstAvailable.sku) setImage(firstAvailable.sku);
+        }
+    };
+
     //
     return (
         <div className={cx('wrapper')}>
@@ -113,16 +153,36 @@ function Introduct() {
                 <h1 className={cx('name-product')}>{product?.name}</h1>
                 <h1 className={cx('price-product')}>{`${dotMoney(currentVariant?.price)} VNĐ`}</h1>
                 <div className={cx('contain-type-number')}>
+                    {/* MÀU SẮC */}
+                    {uniqueColors.length > 0 && (
+                        <div className={cx('product-type')}>
+                            <span>Màu sắc:</span>
+                            <div className={cx('product-size')}>
+                                {uniqueColors.map((color, index) => (
+                                    <button
+                                        key={index}
+                                        value={color}
+                                        onClick={() => handleColorChange(color)}
+                                        className={cx({ active: selectedColor === color })}
+                                    >
+                                        {color}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {/* KÍCH THƯỚC */}
                     <div className={cx('product-type')}>
                         <span>Kích thước:</span>
                         <div className={cx('product-size')}>
-                            {(product?.variants || []).map((item, index) => (
+                            {availableSizes.map((item, index) => (
                                 <button
                                     value={item.size}
                                     onClick={(e) => {
                                         setInfoProduct((props) => ({ ...props, size: item.size }));
                                         setISize(index);
                                         setSize(e.target.value);
+                                        if (item.sku) setImage(item.sku);
                                     }}
                                     disabled={item.stock === 0}
                                     className={cx({ active: size === item.size, disabled: item.stock === 0 })}
@@ -139,7 +199,7 @@ function Introduct() {
                     </div>
                     <div className={cx('product-number')}>
                         <h4>Số lượng:</h4>
-                        <span>{product?.variants?.find((v) => v.size === size)?.stock || 0}</span>
+                        <span>{currentVariant?.stock || 0}</span>
                     </div>
                 </div>
                 <div className={cx('count-and-add')}>
@@ -184,3 +244,4 @@ function Introduct() {
 }
 
 export default Introduct;
+

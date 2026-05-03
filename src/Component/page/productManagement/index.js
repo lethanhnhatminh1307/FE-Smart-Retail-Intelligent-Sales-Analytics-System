@@ -206,6 +206,21 @@ function ProductManagement() {
             },
         },
         {
+            title: 'Màu sắc',
+            key: 'color',
+            width: 150,
+            render: (_, record) => {
+                const colors = [...new Set((record.variants || []).map(v => v.color).filter(Boolean))];
+                return (
+                    <span>
+                        {colors.map((c, i) => (
+                            <Tag key={i} color="magenta">{c}</Tag>
+                        ))}
+                    </span>
+                );
+            },
+        },
+        {
             title: 'Size',
             dataIndex: 'variants',
             key: 'size',
@@ -213,7 +228,9 @@ function ProductManagement() {
             render: (variants) => (
                 <span className="product-size-cell">
                     {(variants || []).map((v, i) => (
-                        <Tag key={i} color="cyan">{v.size}</Tag>
+                        <Tag key={i} color={v.stock > 0 ? 'cyan' : 'default'}>
+                            {v.size} ({v.stock})
+                        </Tag>
                     ))}
                 </span>
             ),

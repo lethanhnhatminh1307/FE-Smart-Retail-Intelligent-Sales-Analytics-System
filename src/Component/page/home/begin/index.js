@@ -16,9 +16,9 @@ function Begin() {
             </div>
             <div className={cx('contain')}>
                 <div className={cx('info')}>
-                    <h3 className={cx('title')}>2023 Sản phẩm mới</h3>
+                    <h3 className={cx('title')}>2026 Ưu đãi lớn</h3>
                     <h1 className={cx('sale')}>Giảm giá</h1>
-                    <h1 className={cx('sale')}>đến 10%</h1>
+                    <h1 className={cx('sale')}>đến 50%</h1>
                     {/* <h2 className={cx('description')}>
                         Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod
                         tincidunt ut laoreet dolore magna aliquam erat volutpat.

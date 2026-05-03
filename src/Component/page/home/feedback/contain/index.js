@@ -31,14 +31,12 @@ function ContainFeedback() {
                         <img className={cx('avatar')} src={avatar} alt={'avatar'} />
                         <div className={cx('feedback')}>
                             <p className={cx('description')}>
-                                I think this is a good website, This helps me is easy to buy faster products. But The
-                                shop still don't sales speacial to customers. I hope the shop will take care of the
-                                customer a lot of.
+                                Tôi rất hài lòng với trải nghiệm mua sắm trên SmartShop. Sản phẩm chất lượng, giao hàng nhanh chóng và dịch vụ chăm sóc khách hàng tuyệt vời. Chắc chắn sẽ quay lại mua thêm!
                             </p>
                         </div>
                         <h4 className={cx('name-of-feedbacker')}>
-                            MT
-                            <span className={cx('application')}> / MT</span>
+                            Nguyễn Minh Anh
+                            <span className={cx('application')}> / Khách hàng thân thiết</span>
                         </h4>
                     </div>
                 </div>
@@ -47,14 +45,12 @@ function ContainFeedback() {
                         <img className={cx('avatar')} src={avatar} alt={'avatar'} />
                         <div className={cx('feedback')}>
                             <p className={cx('description')}>
-                                I think this is a good website, This helps me is easy to buy faster products. But The
-                                shop still don't sales speacial to customers. I hope the shop will take care of the
-                                customer a lot of.
+                                SmartShop có đa dạng sản phẩm từ điện tử đến thời trang. Giá cả hợp lý, nhiều chương trình khuyến mãi hấp dẫn. Đặc biệt giao diện dễ sử dụng, tìm kiếm sản phẩm rất thuận tiện.
                             </p>
                         </div>
                         <h4 className={cx('name-of-feedbacker')}>
-                            MT
-                            <span className={cx('application')}> / MT</span>
+                            Trần Hoàng Long
+                            <span className={cx('application')}> / Người dùng mới</span>
                         </h4>
                     </div>
                 </div>
@@ -63,14 +59,12 @@ function ContainFeedback() {
                         <img className={cx('avatar')} src={avatar} alt={'avatar'} />
                         <div className={cx('feedback')}>
                             <p className={cx('description')}>
-                                I think this is a good website, This helps me is easy to buy faster products. But The
-                                shop still don't sales speacial to customers. I hope the shop will take care of the
-                                customer a lot of.
+                                Mua sắm trên SmartShop là sự lựa chọn tuyệt vời. Sản phẩm chính hãng 100%, đóng gói cẩn thận. Tôi đã giới thiệu cho bạn bè và gia đình cùng trải nghiệm!
                             </p>
                         </div>
                         <h4 className={cx('name-of-feedbacker')}>
-                            MT
-                            <span className={cx('application')}> / MT</span>
+                            Lê Thị Hồng Nhung
+                            <span className={cx('application')}> / Khách hàng VIP</span>
                         </h4>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ function CopyRight() {
                 <img className={cx('img')} src={logo} alt={'logo'} />
             </div>
             <h3 className={cx('copy-right')}>
-                © 2023 copy right.
+                © 2026 SmartShop. All rights reserved.
                 <span>Designed by MTT</span>
             </h3>
             <div className={cx('contact')}>

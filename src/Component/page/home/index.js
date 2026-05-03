@@ -7,24 +7,23 @@ import NewProduct from './newProduct';
 import Benefit from './benefit';
 import IntroductStore from './introductStore';
 import Feedback from './feedback';
-// import StoreImage from '../../storeImage';
-// import LogoBrand from '../../logoBrand';
+import StoreImage from '../../storeImage';
+import LogoBrand from '../../logoBrand';
 
 const cx = classNames.bind(styles);
 
 function Home() {
     return (
         <div className={cx('wrapper')}>
-            Home page
-            {/* <div className={cx('begin')}>
+            <div className={cx('begin')}>
                 <Begin />
-            </div> */}
-            {/* <div className={cx('introduction')}>
+            </div>
+            <div className={cx('introduction')}>
                 <Introduction />
             </div>
-            <div className={cx('new-product')}>
+            {/* <div className={cx('new-product')}>
                 <NewProduct />
-            </div>
+            </div> */}
             <div className={cx('benefit')}>
                 <Benefit />
             </div>
@@ -33,13 +32,13 @@ function Home() {
             </div>
             <div className={cx('feedback')}>
                 <Feedback />
-            </div> */}
-            {/* <div className={cx('store-image')}>
+            </div>
+            <div className={cx('store-image')}>
                 <StoreImage />
-            </div> */}
-            {/* <div className={cx('logo-brands')}>
+            </div>
+            <div className={cx('logo-brands')}>
                 <LogoBrand />
-            </div> */}
+            </div>
         </div>
     );
 }

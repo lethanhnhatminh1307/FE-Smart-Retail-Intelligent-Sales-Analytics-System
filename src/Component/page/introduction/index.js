@@ -23,7 +23,7 @@ function Introduct() {
                             <img className={cx('logo-img')} src={logo} alt={'logo'} />
                         </div>
                         <p className={cx('title')}>
-                        Đam mê của bạn là sự hài lòng của chúng tôi
+                        Mua sắm thông minh - Trải nghiệm mua sắm tuyệt vời
                         </p>
                     </div>
                     <div className={cx('introduct-product')}>
@@ -57,7 +57,7 @@ function Introduct() {
                             <div className={cx('card')}>
                                 <Card
                                     title={'Danh sách sản phẩm'}
-                                    description="Bao gồm tất cả các sản phẩm về cá cảnh."
+                                    description="Đa dạng sản phẩm từ điện tử, thời trang đến gia dụng."
                                     icon={<FontAwesomeIcon icon={faClipboard} />}
                                 />
                             </div>

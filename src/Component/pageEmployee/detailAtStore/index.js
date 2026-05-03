@@ -48,7 +48,7 @@ function DetailAtStore() {
                         textAlign: 'center',
                         fontWeight: '500',
                         paddingBottom: '20px'
-                    }}>SHOP CÁ CẢNH</h1>
+                    }}>SMARTSHOP</h1>
                     <h1 style={{
                         textAlign: 'center',
                         fontWeight: '500',

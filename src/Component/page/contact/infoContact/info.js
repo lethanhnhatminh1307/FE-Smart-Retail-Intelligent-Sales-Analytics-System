@@ -16,7 +16,7 @@ export const contactAt = [
         icon: <FontAwesomeIcon icon={faEnvelope} />,
     },
     {
-        title: 'shop cánh cảnh',
+        title: 'SmartShop',
         icon: <FontAwesomeIcon icon={faCopyright} />,
     },
 ];

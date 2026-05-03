@@ -13,12 +13,12 @@ function Introduction() {
                 {/* <img className={cx('logo')} src={logoImg} alt={'logo'} /> */}
                 <div className={cx('info')}>
                     <h3 className={cx('title')}></h3>
-                    <h2 className={cx('name-shop')}>Shop cá cảnh</h2>
+                    <h2 className={cx('name-shop')}>SmartShop</h2>
                     <p className={cx('description')}>
-                        Đem đến cho quý khách hàng những dịch vụ tốt nhất, sản phẩm tốt nhất
+                        Mua sắm thông minh - Hàng ngàn sản phẩm chính hãng, giá tốt mỗi ngày
                     </p>
                     <p className={cx('description')}>
-                    Bringing customers the best service, the best products
+                    Smart shopping - Thousands of genuine products at great prices every day
                     </p>
                     <Link className={cx('link')} to={'gioi-thieu'}>
                         Về chúng tôi

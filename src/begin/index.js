@@ -32,7 +32,7 @@ function Begin() {
     return (
         <div className={cx('wrapper', { wrap: true })}>
             <div className={cx('contain', { grid: true })}>
-                <h2 className={cx('sale')}>shops.com.vn</h2>
+                <h2 className={cx('sale')}>smartshop.com.vn</h2>
                 {!checkLogin ? (
                     <div className={cx('contain-from')}>
                         <Link to={'/account/login'} className={cx('login')}>

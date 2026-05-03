@@ -22,17 +22,17 @@ function Payment() {
     const [typeOfPayment, setTypeOfPayment] = useState('after');
     const [{ cart }, dispatch] = useContext(Context);
     const refcodeDiscount = useRef();
-    const [addressName,setAddressName] = useState('');
-    const [address,setAddress] = useState({
-        province:'',
-        district:'',
-        village:''
+    const [addressName, setAddressName] = useState('');
+    const [address, setAddress] = useState({
+        province: '',
+        district: '',
+        village: ''
     })
-    const [info,setInfo] = useState({
-        toName:'',
-        toPhoneNumber:'',
-        toSpecificAddress:'',
-        note:''
+    const [info, setInfo] = useState({
+        toName: '',
+        toPhoneNumber: '',
+        toSpecificAddress: '',
+        note: ''
     })
     const refInfoUser = useMemo(() => {
         const refs = [];
@@ -45,7 +45,18 @@ function Payment() {
     useEffect(() => {
         if (agree) {
             (async () => {
-                const data = await payment(choosedProducts, typeOfPayment, codeDiscount,info,address,addressName);
+                const newData = choosedProducts.map((item) => {
+
+                    console.log(choosedProducts);
+                    
+                    return {
+                        productId: item?.idProduct?._id,
+                        variantId: item?.variantId?._id || item?.variantId,
+                        number: item?.number,
+                        _id: item?._id
+                    }
+                });
+                const data = await payment(newData, typeOfPayment, codeDiscount, info, address, addressName);
                 dispatch({ key: CART, value: data });
                 notify('success', 'Đặt hàng thành công');
                 setAgree(false);
@@ -75,7 +86,7 @@ function Payment() {
             notify('warning', 'Vui lòng nhập đủ thông tin');
             return;
         }
-        
+
         if (choosedProducts.length > 0) {
             setIsShow(true);
         } else {
@@ -84,12 +95,12 @@ function Payment() {
             return;
         }
         setInfo({
-            toName:refInfoUser[0].current.value,
-            toPhoneNumber:refInfoUser[1].current.value,
-            toSpecificAddress:refInfoUser[2].current.value,
-            note:refInfoUser[3].current.value
+            toName: refInfoUser[0].current.value,
+            toPhoneNumber: refInfoUser[1].current.value,
+            toSpecificAddress: refInfoUser[2].current.value,
+            note: refInfoUser[3].current.value
         })
-        
+
         setCodeDiscount(refcodeDiscount.current?.value);
         setTypeOfPayment(typeOfPayment);
         // call API
@@ -99,7 +110,7 @@ function Payment() {
     return (
         <div className={cx('wrapper', { wrap: true })}>
             <NotifyContainer />
-           
+
             {isShow && (
                 <Default
                     title={'Xác nhận'}
@@ -111,7 +122,7 @@ function Payment() {
             <div className={cx('contain', { grid: true })}>
                 <div className={cx('layout')}>
                     <div style={{ width: '377px', overflow: 'hidden' }}>
-                        <InfoOfUser setAddressName={setAddressName} address={address} setAddress={setAddress}  ref={refInfoUser} />
+                        <InfoOfUser setAddressName={setAddressName} address={address} setAddress={setAddress} ref={refInfoUser} />
                     </div>
                     <span className={cx('line-border')}></span>
                     <div style={{ width: '377px', overflow: 'hidden' }}>

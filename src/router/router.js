@@ -162,19 +162,19 @@ export const layoutPublic = [
         path: '/',
     },
     {
-        // element: Introduct,
+        element: Introduct,
         path: '/gioi-thieu',
     },
     {
-        // element: Contact,
+        element: Contact,
         path: '/lien-he',
     },
     {
-        // element: Brand,
+        element: Brand,
         path: '/thuong-hieu',
     },
     {
-        // element: Collection,
+        element: Collection,
         path: '/bo-suu-tap',
     },
     {

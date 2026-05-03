@@ -33,7 +33,7 @@ export const functions = [
         icon: false,
     },
     {
-        name: 'Cửu hàng',
+        name: 'Cửa hàng',
         path: '/cua-hang',
         more: true,
         icon: <FontAwesomeIcon icon={faAngleDown} />,

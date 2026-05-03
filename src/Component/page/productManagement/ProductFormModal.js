@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
-import { Modal, Form, Select, InputNumber, Input, Upload, Space, Button, Image } from 'antd';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Modal, Form, Select, InputNumber, Input, Upload, Button, Image, Row, Col, Divider, Card } from 'antd';
+import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { Context } from '~/GlobalContext';
 import { notify } from '~/utils/notification';
 import { convertImageToBase64 } from '~/utils/converImageToBase64';
@@ -18,7 +18,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
     const isEditMode = !!editingProduct;
 
     // =========================
-    // INIT FORM (ADD + EDIT)
+    // KHỞI TẠO FORM (THÊM + SỬA)
     // =========================
     useEffect(() => {
         if (!open) return;
@@ -30,30 +30,30 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 description: editingProduct.description || '',
                 variants: editingProduct.variants?.length
                     ? editingProduct.variants.map((item, index) => ({
-                          ...item,
-                          sku: item.sku
-                              ? [
-                                    {
-                                        uid: `old-${index}`,
-                                        name: 'image.png',
-                                        status: 'done',
-                                        url: item.sku, // URL hoặc base64 từ backend
-                                    },
-                                ]
-                              : [],
-                      }))
-                    : [{ size: '', stock: undefined, price: undefined, sku: [] }],
+                        ...item,
+                        sku: item.sku
+                            ? [
+                                {
+                                    uid: `old-${index}`,
+                                    name: 'image.png',
+                                    status: 'done',
+                                    url: item.sku,
+                                },
+                            ]
+                            : [],
+                    }))
+                    : [{ color: '', size: '', stock: undefined, price: undefined, sku: [] }],
             });
         } else {
             form.resetFields();
             form.setFieldsValue({
-                variants: [{ size: '', stock: undefined, price: undefined, sku: [] }],
+                variants: [{ color: '', size: '', stock: undefined, price: undefined, sku: [] }],
             });
         }
     }, [open, editingProduct, isEditMode, form]);
 
     // =========================
-    // PREVIEW IMAGE
+    // XEM TRƯỚC ẢNH
     // =========================
     const handlePreview = async (file) => {
         let src = file.url;
@@ -71,7 +71,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
     };
 
     // =========================
-    // SUBMIT
+    // GỬI FORM
     // =========================
     const handleOk = async () => {
         try {
@@ -84,7 +84,6 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                     if (item.sku?.length > 0 && item.sku[0]?.originFileObj) {
                         base64 = await convertImageToBase64(item.sku[0].originFileObj);
                     } else if (item.sku?.length > 0 && item.sku[0]?.url) {
-                        // giữ ảnh cũ khi edit
                         base64 = item.sku[0].url;
                     }
 
@@ -120,7 +119,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
     };
 
     // =========================
-    // UI
+    // GIAO DIỆN
     // =========================
     return (
         <>
@@ -130,101 +129,177 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                 onOk={handleOk}
                 onCancel={onCancel}
                 okText={isEditMode ? 'Cập nhật' : 'Thêm'}
+                cancelText="Hủy"
                 confirmLoading={loading}
-                width={750}
+                width={800}
                 centered
+                styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
             >
                 <Form form={form} layout="vertical">
-                    {/* NAME */}
-                    <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col span={16}>
+                            <Form.Item
+                                name="name"
+                                label="Tên sản phẩm"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm' }]}
+                            >
+                                <Input placeholder="Nhập tên sản phẩm" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item
+                                name="type"
+                                label="Loại sản phẩm"
+                                rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
+                            >
+                                <Select placeholder="Chọn loại">
+                                    {category.map((item) => (
+                                        <Option key={item.slug} value={item.slug}>
+                                            {item.type}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
-                    {/* TYPE */}
-                    <Form.Item name="type" label="Loại" rules={[{ required: true }]}>
-                        <Select>
-                            {category.map((item) => (
-                                <Option key={item.slug} value={item.slug}>
-                                    {item.type}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-
-                    {/* VARIANTS */}
-                    <Form.Item label="Variants">
-                        <Form.List name="variants">
-                            {(fields, { add, remove }) => (
-                                <>
-                                    {fields.map(({ key, name, ...restField }) => (
-                                        <Space key={key} align="start" style={{ display: 'flex', marginBottom: 8 }}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'size']}
-                                                rules={[{ required: true }]}
-                                            >
-                                                <Input placeholder="Size" />
-                                            </Form.Item>
-
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'price']}
-                                                rules={[{ required: true }]}
-                                            >
-                                                <InputNumber placeholder="Giá" />
-                                            </Form.Item>
-
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'stock']}
-                                                rules={[{ required: true }]}
-                                            >
-                                                <InputNumber placeholder="Kho" />
-                                            </Form.Item>
-
-                                            {/* UPLOAD (SMALL + PREVIEW) */}
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'sku']}
-                                                valuePropName="fileList"
-                                                getValueFromEvent={(e) => e?.fileList}
-                                            >
-                                                <Upload
-                                                    listType="picture-card"
-                                                    beforeUpload={() => false}
-                                                    maxCount={1}
-                                                    onPreview={handlePreview}
-                                                    className="small-upload"
-                                                >
-                                                    <Button size="small">Upload</Button>
-                                                </Upload>
-                                            </Form.Item>
-
-                                            {fields.length > 1 && (
+                    {/* PHÂN LOẠI SẢN PHẨM */}
+                    <Divider orientation="left" style={{ fontSize: 14, fontWeight: 600 }}>
+                        Phân loại sản phẩm
+                    </Divider>
+                    <Form.List name="variants">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }, index) => (
+                                    <Card
+                                        key={key}
+                                        size="small"
+                                        style={{
+                                            marginBottom: 12,
+                                            borderRadius: 8,
+                                            border: '1px solid #f0f0f0',
+                                            background: '#fafafa',
+                                        }}
+                                        title={
+                                            <span style={{ fontSize: 13, color: '#666' }}>
+                                                Phân loại #{index + 1}
+                                            </span>
+                                        }
+                                        extra={
+                                            fields.length > 1 && (
                                                 <MinusCircleOutlined
                                                     onClick={() => remove(name)}
-                                                    style={{ color: 'red' }}
+                                                    style={{ color: '#ff4d4f', fontSize: 16, cursor: 'pointer' }}
+                                                    title="Xóa phân loại này"
                                                 />
-                                            )}
-                                        </Space>
-                                    ))}
+                                            )
+                                        }
+                                    >
+                                        <Row gutter={12}>
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'color']}
+                                                    label="Màu sắc"
+                                                    rules={[{ required: true, message: 'Nhập màu' }]}
+                                                    style={{ marginBottom: 8 }}
+                                                >
+                                                    <Input placeholder="VD: Đen, Trắng..." />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'size']}
+                                                    label="Kích thước"
+                                                    rules={[{ required: true, message: 'Nhập kích thước' }]}
+                                                    style={{ marginBottom: 8 }}
+                                                >
+                                                    <Input placeholder="VD: S, M, L..." />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'price']}
+                                                    label="Giá bán (VNĐ)"
+                                                    rules={[{ required: true, message: 'Nhập giá bán' }]}
+                                                    style={{ marginBottom: 8 }}
+                                                >
+                                                    <InputNumber
+                                                        placeholder="VD: 150000"
+                                                        style={{ width: '100%' }}
+                                                        min={0}
+                                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                        parser={(value) => value.replace(/,/g, '')}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={6}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'stock']}
+                                                    label="Tồn kho"
+                                                    rules={[{ required: true, message: 'Nhập số lượng' }]}
+                                                    style={{ marginBottom: 8 }}
+                                                >
+                                                    <InputNumber
+                                                        placeholder="VD: 10"
+                                                        style={{ width: '100%' }}
+                                                        min={0}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'sku']}
+                                                    label="Ảnh sản phẩm"
+                                                    valuePropName="fileList"
+                                                    getValueFromEvent={(e) => e?.fileList}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Upload
+                                                        listType="picture-card"
+                                                        beforeUpload={() => false}
+                                                        maxCount={1}
+                                                        onPreview={handlePreview}
+                                                        className="small-upload"
+                                                    >
+                                                        <div>
+                                                            <UploadOutlined />
+                                                            <div style={{ marginTop: 4, fontSize: 12 }}>Tải ảnh</div>
+                                                        </div>
+                                                    </Upload>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                ))}
 
-                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                        Thêm variant
-                                    </Button>
-                                </>
-                            )}
-                        </Form.List>
-                    </Form.Item>
+                                <Button
+                                    type="dashed"
+                                    onClick={() => add({ color: '', size: '', stock: undefined, price: undefined, sku: [] })}
+                                    block
+                                    icon={<PlusOutlined />}
+                                    style={{ height: 40 }}
+                                >
+                                    Thêm phân loại
+                                </Button>
+                            </>
+                        )}
+                    </Form.List>
 
-                    {/* DESCRIPTION */}
-                    <Form.Item name="description" label="Mô tả">
-                        <TextArea rows={3} />
+                    {/* MÔ TẢ */}
+                    <Form.Item name="description" label="Mô tả sản phẩm" style={{ marginTop: 16 }}>
+                        <TextArea rows={3} placeholder="Nhập mô tả sản phẩm..." />
                     </Form.Item>
                 </Form>
             </Modal>
 
-            {/* PREVIEW MODAL */}
+            {/* XEM TRƯỚC ẢNH */}
             <Image
                 style={{ display: 'none' }}
                 preview={{
@@ -238,3 +313,4 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
 }
 
 export default ProductFormModal;
+
