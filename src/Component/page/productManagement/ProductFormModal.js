@@ -42,12 +42,12 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                             ]
                             : [],
                     }))
-                    : [{ color: '', size: '', stock: undefined, price: undefined, sku: [] }],
+                    : [{ color: '', size: '', stock: undefined, cost: undefined, price: undefined, sku: [] }],
             });
         } else {
             form.resetFields();
             form.setFieldsValue({
-                variants: [{ color: '', size: '', stock: undefined, price: undefined, sku: [] }],
+                variants: [{ color: '', size: '', stock: undefined, cost: undefined, price: undefined, sku: [] }],
             });
         }
     }, [open, editingProduct, isEditMode, form]);
@@ -196,7 +196,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                         }
                                     >
                                         <Row gutter={12}>
-                                            <Col span={6}>
+                                            <Col span={5}>
                                                 <Form.Item
                                                     {...restField}
                                                     name={[name, 'color']}
@@ -207,7 +207,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                                     <Input placeholder="VD: Đen, Trắng..." />
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={6}>
+                                            <Col span={4}>
                                                 <Form.Item
                                                     {...restField}
                                                     name={[name, 'size']}
@@ -218,7 +218,24 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                                     <Input placeholder="VD: S, M, L..." />
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={6}>
+                                            <Col span={5}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'cost']}
+                                                    label="Giá nhập (VNĐ)"
+                                                    rules={[{ required: true, message: 'Nhập giá nhập' }]}
+                                                    style={{ marginBottom: 8 }}
+                                                >
+                                                    <InputNumber
+                                                        placeholder="VD: 100000"
+                                                        style={{ width: '100%' }}
+                                                        min={0}
+                                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                        parser={(value) => value.replace(/,/g, '')}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={5}>
                                                 <Form.Item
                                                     {...restField}
                                                     name={[name, 'price']}
@@ -235,7 +252,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={6}>
+                                            <Col span={5}>
                                                 <Form.Item
                                                     {...restField}
                                                     name={[name, 'stock']}
@@ -281,7 +298,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
 
                                 <Button
                                     type="dashed"
-                                    onClick={() => add({ color: '', size: '', stock: undefined, price: undefined, sku: [] })}
+                                    onClick={() => add({ color: '', size: '', stock: undefined, cost: undefined, price: undefined, sku: [] })}
                                     block
                                     icon={<PlusOutlined />}
                                     style={{ height: 40 }}

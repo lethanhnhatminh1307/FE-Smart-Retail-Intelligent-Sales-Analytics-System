@@ -21,9 +21,11 @@ const MyOrder = lazy(()=>import('~/Component/page/myOrder'));
 const CreatePost = lazy(()=>import('~/Component/pageEmployee/createPost'))
 const Statistic = lazy(() => import('~/Component/pageEmployee/statistic'))
 const CreateAccount = lazy(() => import('~/Component/pageManager/createAccount'));
+const OrderManagement = lazy(() => import('~/Component/pageManager/OrderManagement'));
 const SeeOrder = lazy(() => import('~/Component/pageEmployee/seeOrder'));
 const Payment = lazy(() => import('~/Component/page/payment'));
 const Home = lazy(() => import('~/Component/page/home'));
+const Dashboard = lazy(() => import('~/Component/page/dashboard'));
 
 
 
@@ -140,6 +142,14 @@ export const layoutManager = [
     {
         element: CreateAccount,
         path: 'tao-tai-khoan',
+    },
+    {
+        element: Dashboard,
+        path: 'dashboard',
+    },
+    {
+        element: OrderManagement,
+        path: 'don-hang',
     },
     {
         element: DisableAccount,

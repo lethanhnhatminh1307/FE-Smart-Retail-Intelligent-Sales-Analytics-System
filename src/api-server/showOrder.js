@@ -22,7 +22,7 @@ export const confirm = async (idOrder, idInfoOrder,orderCode,billId,itemId,ship,
     return data;
 };
 
-export const  myOrder = async () => {
+export const myOrder = async () => {
     const data = await request.get('order/my-order',{
         params:{
             id: localStorage.id
@@ -30,3 +30,13 @@ export const  myOrder = async () => {
     })
     return data.data;
 }
+
+export const getAllOrders = async () => {
+    const res = await request.get('order/all');
+    return res;
+};
+
+export const updateOrderStatus = async (id, status) => {
+    const res = await request.post('order/update-status', { id, status }); // wait, I made backend PUT earlier
+    return res;
+};

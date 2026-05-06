@@ -56,6 +56,7 @@ function Begin() {
                                 <Render classNames={cx('render-tippy')} attrs={attrs}>
                                     <div className={cx('list-items')}>
                                         <Link to={'/cap-nhat-thong-tin'}>Thông tin</Link>
+                                        <Link to={'/my-order'}>Đơn hàng của tôi</Link>
                                         {localStorage.role === 'manager' && (
                                             <>
                                                 <Tippy
@@ -107,10 +108,12 @@ function Begin() {
                                                    <Link> Tính năng quản lý</Link>
                                                 </Tippy>
                                                 <Link to={'/xem-hoa-don'}>Xem hóa đơn</Link> */}
+                                                <Link to={'/quan-ly/dashboard'}>Bảng Điều Khiển Lợi Nhuận</Link>
+                                                <Link to={'/quan-ly/don-hang'}>Quản lý đơn hàng</Link>
                                                 <Link to={'/quan-ly-san-pham'}>Quản lý sản phẩm</Link>
                                             </>
                                         )}
-                                        {/* <Link to='/my-order'>Xem đơn hàng</Link> */}
+
                                         {/* <Link>Đăng khi thành viên</Link>
                                         <Link> Đăng kí ví ANPAY</Link> */}
                                         <Link to="doi-mat-khau">Đổi mật khẩu</Link>

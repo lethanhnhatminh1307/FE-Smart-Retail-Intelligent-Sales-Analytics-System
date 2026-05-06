@@ -1,103 +1,115 @@
-import classNames from "classnames/bind";
-import styles from './myOrder.module.scss'
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Table, Tag, Card } from "antd";
 import { myOrder } from "~/api-server/showOrder";
-import { myBought } from "~/api-server/bought";
-import axios from "axios";
-import { statusOrder } from "~/api-server/GHN";
-import statusDelivery from "./status";
 import { dotMoney } from "~/utils/dotMoney";
-const cx = classNames.bind(styles)
+import classNames from "classnames/bind";
+import styles from './myOrder.module.scss';
+
+const cx = classNames.bind(styles);
 
 function MyOrder() {
-    const [data,setData] = useState([])
-    const [type,setType] = useState(1) // 1 is waiting to confirm and 2 is confirmed
-    const [render,setRender] = useState([])
-    // const [status,setStatus] = useState('Chờ xác nhận')
-    useEffect(()=>{
-        (async()=>{
-            let data = []
-            if(type==1){
-                data = await myOrder()
-            }
-            else data= await myBought()
-            setData(data)
-        })()
-    },[type])
-    const handleChangeType = e => {
-        setType(e.target.value*1)
-    }
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-   
-    const newData = useMemo(()=>{
-       if(type===1){
-            return data.reduce((first,item,index)=>{
-                return [...first,...item?.infoOfOder]
-            },[]) 
-       }else{
-            return data
-       }
-    },[JSON.stringify(data)])
-    useEffect(()=>{
-        (async()=>{
-            // if(type==1) setStatus('Chờ xác nhận')
-            if(type==2){
-                const data = newData.map(async(item,index)=>{
-                    if(item?.code){
-                        const status = await statusOrder(item.code)
-                        // console.log(status?.data?.data?.status);
-                        const statusStr= statusDelivery(status?.data?.data?.status)
-                        item.status = statusStr
-                    }
-                })
-                await Promise.all(data)
-                setRender(data)
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                setLoading(true);
+                const data = await myOrder();
+                if (data) {
+                    setOrders(data);
+                }
+            } catch (error) {
+                console.error("Lỗi tải đơn hàng:", error);
+            } finally {
+                setLoading(false);
             }
-        })()
-    },[newData])
-    return <div className={cx('wrapper')}>
-        <h1>Đơn hàng của tôi</h1>
-        <div className={cx('container')}>
-       <div className={cx('contain-select')}>
-            <select onChange={handleChangeType}>
-                <option value={1}>Đang chờ xác nhận</option>
-                <option value={2}>Đã xác nhận</option>
-            </select>
-       </div>
-        <table className={cx('table-item',{table:true})}>
-        <thead>
-            <tr>
-            <th colSpan={1} scope="col">STT</th>
-            <th colSpan={2} scope="col">Hình ảnh</th>
-            <th colSpan={5} scope="col">Tên sản phẩm</th>
-            <th colSpan={2} scope="col">Giá</th>
-            <th colSpan={1} scope="col">Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            {newData.map((item,index) =>{
-                let status = 'Chờ xác nhận'
-                if(item.code ==='success' && type==2){
-                    status = 'Đã giao hàng'
-                }
-                else if(!item.code && type==2) status = 'Đang giao hàng'
-                else if(item.code ==='error' && type==2) status = 'Đơn hàng đã hủy'
-                else if(type===2 && item?.code){
-                    status = item?.status
-                }
-                return <tr key={index}>
-                <th colSpan={1} scope="row">{index+1}</th> 
-                    <td colSpan={2}><img style={{width:'100px',objectFit:'cover'}} src={item.image} /></td>
-                    <td colSpan={5}>{item.idProduct?.name}</td>
-                    <td colSpan={2}>{`${item.number} x ${dotMoney(item.price)} = ${dotMoney(item.price*item.number)} VNĐ`}</td>
-                    <td colSpan={1}>{status}</td>
-                </tr>
-            })}
-            
-        </tbody>
-        </table>
+        };
+        fetchOrders();
+    }, []);
+
+    const columns = [
+        {
+            title: 'Sản phẩm',
+            key: 'products',
+            render: (_, record) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {(record.infoOfOder || []).map((item, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <img src={item.image} alt={item.name} style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }} />
+                            <div>
+                                <div style={{ fontWeight: 500, color: '#1a1a2e' }}>{item.name || 'Sản phẩm'}</div>
+                                <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                    {item.color} - {item.size}
+                                </div>
+                                <div style={{ fontSize: 13, color: '#cf1322', fontWeight: 600 }}>
+                                    {item.number} x {dotMoney(item.price)} đ
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )
+        },
+        {
+            title: 'Tổng thanh toán',
+            key: 'total',
+            width: 180,
+            align: 'right',
+            render: (_, record) => {
+                const total = (record.infoOfOder || []).reduce((acc, item) => acc + (item.number * item.price), 0);
+                return <b style={{ color: '#cf1322', fontSize: 16 }}>{dotMoney(total)} đ</b>;
+            }
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            width: 150,
+            align: 'center',
+            render: (status) => {
+                let color = 'default';
+                let text = status;
+                if (status === 'pending' || !status) { color = 'warning'; text = 'Chờ xử lý'; }
+                else if (status === 'delivering') { color = 'processing'; text = 'Đang giao'; }
+                else if (status === 'delivered') { color = 'success'; text = 'Đã giao'; }
+                else if (status === 'cancelled') { color = 'error'; text = 'Đã hủy'; }
+                return <Tag color={color} style={{ padding: '4px 12px', fontSize: 14 }}>{text}</Tag>;
+            }
+        },
+        {
+            title: 'Thông tin nhận hàng',
+            key: 'shipping',
+            width: 250,
+            render: (_, record) => (
+                <div style={{ fontSize: 13, color: '#595959' }}>
+                    <div style={{ marginBottom: 4 }}><b>{record.toName}</b> - {record.toPhoneNumber}</div>
+                    <div>{record.toSpecificAddress}, {record.toVillage}, {record.toDistrict}, {record.toProvince}</div>
+                    {record.typeOfPayment && (
+                        <div style={{ marginTop: 4 }}>
+                            <Tag color="purple">{record.typeOfPayment === 'banking' ? 'Chuyển khoản' : 'Thanh toán khi nhận hàng'}</Tag>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+    ];
+
+    return (
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 16px', minHeight: '80vh' }}>
+            <h1 style={{ fontSize: 24, fontWeight: 600, color: '#1a1a2e', marginBottom: 24 }}>Đơn hàng của tôi</h1>
+            <Card bordered={false} style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderRadius: 12 }}>
+                <Table 
+                    columns={columns}
+                    dataSource={orders}
+                    rowKey="_id"
+                    loading={loading}
+                    pagination={{ pageSize: 10 }}
+                    scroll={{ x: 800 }}
+                />
+            </Card>
         </div>
-    </div>;
+    );
 }
 
 export default MyOrder;
