@@ -1,10 +1,10 @@
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import { useEffect, useMemo, useState } from 'react';
-import { banking } from '~/api-server/payment';
+import { banking, payment } from '~/api-server/payment';
+import { CART } from '~/GlobalContext/key';
 import NotifyContainer, { notify } from '~/utils/notification';
 
-
-function PaypalButton({ products, typePayment }) {
+function PaypalButton({ products,dispatch, typePayment,setChoosedProducts,  typeOfPayment, codeDiscount, info, address, addressName }) {
     const [isAfter, setIsAfter] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [price, description] = useMemo(() => {
@@ -23,18 +23,30 @@ function PaypalButton({ products, typePayment }) {
         setIsAfter(true);
     }, [price]);
 
-    const create = (data, actions) => {
+    async function convertVNDToUSD(vnd) {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/VND');
+        const data = await res.json();
+
+        const rate = data.rates.USD;
+        return (vnd * rate).toFixed(2);
+    }
+
+    const create = async (data, actions) => {
+        const priceUSD = await convertVNDToUSD(price);
         return actions.order.create({
             purchase_units: [
                 {
                     amount: {
-                        value: price,
+                        value: priceUSD,
                     },
                     description: description,
                 },
             ],
         });
     };
+
+    console.log(products,dispatch, typePayment,setChoosedProducts, typeOfPayment, codeDiscount, info, address, addressName );
+    
 
     return (
         <>
@@ -52,20 +64,39 @@ function PaypalButton({ products, typePayment }) {
                 createOrder={(data, actions) => {
                     return create(data, actions);
                 }}
-                onApprove={(data, actions) => {
-                    return actions.order.capture().then(async (details) => {
-                        const success = await banking(products);
-                        if (success) {
-                            notify('success', 'Thanh toán thành công');
-                        } else {
-                            notify('warning', 'Đã xãy ra lỗi! Vui lòng kiểm tra lại');
-                        }
+                onApprove={async (data, actions) => {
+                    const newData = products.map((item) => {
+                        return {
+                            productId: item?.idProduct?._id,
+                            variantId: item?.variantId?._id || item?.variantId,
+                            number: item?.number,
+                            _id: item?._id,
+                        };
                     });
+    
+                    console.log(info);
+                    
+                    
+                    const response = await payment(newData, typeOfPayment, codeDiscount, info, address, addressName);
+
+                    // console.log(success);
+                    
+
+                    if (response) {
+                        notify('success', 'Thanh toán thành công');
+                        setChoosedProducts([]);
+                        dispatch({ key: CART, value: response });
+                    } else {
+                        notify('warning', 'Đã xãy ra lỗi! Vui lòng kiểm tra lại');
+                    }
+                    // return actions.order.capture().then(async (details) => {
+
+                    // });
                 }}
                 onError={(error) => {
                     // Xử lý lỗi trong quá trình thanh toán
                     notify('error', 'Thanh toán không thành công');
-                    console.log('payment error');
+                    console.log(error);
                 }}
             />
         </>

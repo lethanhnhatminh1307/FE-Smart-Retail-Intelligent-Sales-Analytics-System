@@ -4,7 +4,7 @@ const { FontAwesomeIcon } = require('@fortawesome/react-fontawesome');
 
 export const contactAt = [
     {
-        title: 'Ninh Kiều, Cần Thơ',
+        title: 'Liên Chiểu, Đà Nẵng',
         icon: <FontAwesomeIcon icon={faLocationDot} />,
     },
     {
@@ -12,7 +12,7 @@ export const contactAt = [
         icon: <FontAwesomeIcon icon={faPhone} />,
     },
     {
-        title: 'maitrungtin4732@gmail.com',
+        title: 'shops@gmail.com',
         icon: <FontAwesomeIcon icon={faEnvelope} />,
     },
     {

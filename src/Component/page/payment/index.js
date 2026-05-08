@@ -26,14 +26,14 @@ function Payment() {
     const [address, setAddress] = useState({
         province: '',
         district: '',
-        village: ''
-    })
+        village: '',
+    });
     const [info, setInfo] = useState({
         toName: '',
         toPhoneNumber: '',
         toSpecificAddress: '',
-        note: ''
-    })
+        note: '',
+    });
     const refInfoUser = useMemo(() => {
         const refs = [];
         for (let index = 0; index < 4; index++) {
@@ -46,15 +46,14 @@ function Payment() {
         if (agree) {
             (async () => {
                 const newData = choosedProducts.map((item) => {
-
                     console.log(choosedProducts);
-                    
+
                     return {
                         productId: item?.idProduct?._id,
                         variantId: item?.variantId?._id || item?.variantId,
                         number: item?.number,
-                        _id: item?._id
-                    }
+                        _id: item?._id,
+                    };
                 });
                 const data = await payment(newData, typeOfPayment, codeDiscount, info, address, addressName);
                 dispatch({ key: CART, value: data });
@@ -98,14 +97,22 @@ function Payment() {
             toName: refInfoUser[0].current.value,
             toPhoneNumber: refInfoUser[1].current.value,
             toSpecificAddress: refInfoUser[2].current.value,
-            note: refInfoUser[3].current.value
-        })
+            note: refInfoUser[3].current.value,
+        });
 
         setCodeDiscount(refcodeDiscount.current?.value);
         setTypeOfPayment(typeOfPayment);
         // call API
     };
 
+    useEffect(() => {
+        setInfo({
+            toName: refInfoUser[0].current.value,
+            toPhoneNumber: refInfoUser[1].current.value,
+            toSpecificAddress: refInfoUser[2].current.value,
+            note: refInfoUser[3].current.value,
+        });
+    });
 
     return (
         <div className={cx('wrapper', { wrap: true })}>
@@ -122,7 +129,12 @@ function Payment() {
             <div className={cx('contain', { grid: true })}>
                 <div className={cx('layout')}>
                     <div style={{ width: '377px', overflow: 'hidden' }}>
-                        <InfoOfUser setAddressName={setAddressName} address={address} setAddress={setAddress} ref={refInfoUser} />
+                        <InfoOfUser
+                            setAddressName={setAddressName}
+                            address={address}
+                            setAddress={setAddress}
+                            ref={refInfoUser}
+                        />
                     </div>
                     <span className={cx('line-border')}></span>
                     <div style={{ width: '377px', overflow: 'hidden' }}>
@@ -144,7 +156,18 @@ function Payment() {
                         </Button>
                     )}
                     {typeOfPayment === 'banking' && (
-                        <PaypalButton products={choosedProducts} typePayment={setTypeOfPayment} />
+                        <PaypalButton
+                            products={choosedProducts}
+                            typePayment={setTypeOfPayment}
+                            address={address}
+                            addressName={addressName}
+                            codeDiscount={codeDiscount}
+                            dispatch={dispatch}
+                            info={info}
+                            setChoosedProducts={setChoosedProducts}
+                            typeOfPayment={typeOfPayment}
+                        />
+                        //  typeOfPayment, codeDiscount, info, address, addressName
                     )}
                 </div>
             </div>

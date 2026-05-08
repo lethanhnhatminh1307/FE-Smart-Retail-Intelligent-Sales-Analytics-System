@@ -44,7 +44,10 @@ function Begin() {
                         </Link>
                     </div>
                 ) : (
-                    <div className={cx('contain-account')}>
+                    <div
+                        className={cx('contain-account')}
+                        style={{ display: 'flex', gap: '7px', alignItems: 'center' }}
+                    >
                         <Tippy
                             // visible
                             hideOnClick={false}
@@ -122,10 +125,13 @@ function Begin() {
                                 </Render>
                             )}
                         >
-                            <div>
+                            <div style={{ display: 'flex', gap: '7px' }}>
                                 <h4 className={cx('account')}>Tài khoản</h4>
                             </div>
                         </Tippy>
+                        <Link onClick={handleClickLogout} className={cx('account')}>
+                            Đăng xuất
+                        </Link>
                     </div>
                 )}
             </div>

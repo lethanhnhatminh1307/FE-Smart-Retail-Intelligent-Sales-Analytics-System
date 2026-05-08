@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
 import classNames from 'classnames/bind';
-import logo from '~/media/image/logo/anh_ca_canh_lien_he.png';
+import logo from '~/media/image/logo/logonew.png';
 import { contactAt } from './info';
 import TitleAndIcon from '~/Component/titleAndIcon';
 import Input from '~/Input';

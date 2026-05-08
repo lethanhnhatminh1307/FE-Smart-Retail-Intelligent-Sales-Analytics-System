@@ -35,7 +35,7 @@ export const functions = [
     {
         name: 'Cửa hàng',
         path: '/cua-hang',
-        more: true,
-        icon: <FontAwesomeIcon icon={faAngleDown} />,
+        more: false,
+        icon: false,
     },
 ];

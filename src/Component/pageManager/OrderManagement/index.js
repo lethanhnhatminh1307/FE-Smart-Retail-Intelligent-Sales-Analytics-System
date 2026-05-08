@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Tag, Button, Popconfirm } from 'antd';
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { getAllOrders, updateOrderStatus } from '~/api-server/showOrder';
 import { notify } from '~/utils/notification';
 import classNames from 'classnames/bind';
@@ -32,11 +32,12 @@ function OrderManagement() {
         fetchOrders();
     }, []);
 
-    const handleMarkDelivered = async (id) => {
+    const handleMarkDelivered = async (id, nextStatus) => {
         try {
-            const res = await updateOrderStatus(id, 'delivered');
-            if (res && res.data?.success) {
-                notify('success', 'Đã xác nhận đơn hàng thành công');
+            const res = await updateOrderStatus(id, nextStatus);
+
+            if (res && res?.success) {
+                notify('success', 'Cập nhật thành công');
                 fetchOrders();
             } else {
                 notify('error', 'Cập nhật thất bại');
@@ -57,7 +58,7 @@ function OrderManagement() {
                     <br />
                     <span>{record.toPhoneNumber}</span>
                 </div>
-            )
+            ),
         },
         {
             title: 'Địa chỉ giao',
@@ -67,7 +68,7 @@ function OrderManagement() {
                 <span>
                     {record.toSpecificAddress}, {record.toVillage}, {record.toDistrict}, {record.toProvince}
                 </span>
-            )
+            ),
         },
         {
             title: 'Sản phẩm',
@@ -80,15 +81,15 @@ function OrderManagement() {
                         </li>
                     ))}
                 </ul>
-            )
+            ),
         },
         {
             title: 'Tổng tiền',
             key: 'total',
             render: (_, record) => {
-                const total = (record.infoOfOder || []).reduce((acc, item) => acc + (item.number * item.price), 0);
+                const total = (record.infoOfOder || []).reduce((acc, item) => acc + item.number * item.price, 0);
                 return <b style={{ color: '#cf1322' }}>{dotMoney(total)} đ</b>;
-            }
+            },
         },
         {
             title: 'Trạng thái',
@@ -97,41 +98,91 @@ function OrderManagement() {
             render: (status) => {
                 let color = 'default';
                 let text = status;
-                if (status === 'pending') { color = 'warning'; text = 'Chờ xử lý'; }
-                if (status === 'delivering') { color = 'processing'; text = 'Đang giao'; }
-                if (status === 'delivered') { color = 'success'; text = 'Đã giao'; }
-                if (status === 'cancelled') { color = 'error'; text = 'Đã hủy'; }
+                if (status === 'pending') {
+                    color = 'warning';
+                    text = 'Chờ xử lý';
+                }
+                if (status === 'delivering') {
+                    color = 'processing';
+                    text = 'Đang giao';
+                }
+                if (status === 'delivered') {
+                    color = 'success';
+                    text = 'Đã giao';
+                }
+                if (status === 'cancelled') {
+                    color = 'error';
+                    text = 'Đã hủy';
+                }
                 return <Tag color={color}>{text}</Tag>;
-            }
+            },
         },
         {
             title: 'Thao tác',
             key: 'action',
             render: (_, record) => {
-                if (record.status === 'pending' || !record.status) {
+                if ((record.status !== 'delivered' && record.status !== 'cancelled') || !record.status) {
+                    let nextStatus;
+                    switch (record.status) {
+                        case 'pending':
+                            nextStatus = 'delivering';
+                            break;
+                        case 'delivering':
+                            nextStatus = 'delivered';
+                            break;
+                        default:
+                            nextStatus = 'delivered';
+                    }
                     return (
-                        <Popconfirm
-                            title="Xác nhận giao hàng thành công?"
-                            onConfirm={() => handleMarkDelivered(record._id)}
-                            okText="Đồng ý"
-                            cancelText="Hủy"
+                        <div
+                            style={{
+                                display: 'flex',
+                                gap: '5px',
+                            }}
                         >
-                            <Button type="primary" style={{ background: '#cf1322', borderColor: '#cf1322' }} icon={<CheckOutlined />}>
-                                Xác nhận
-                            </Button>
-                        </Popconfirm>
+                            {record.status === 'pending' && (
+                                <Popconfirm
+                                    title="Bạn có chắc chắn muốn hủy?"
+                                    onConfirm={() => handleMarkDelivered(record._id, 'cancelled')}
+                                    okText="Đồng ý"
+                                    cancelText="Hủy"
+                                >
+                                    <Button
+                                        type="primary"
+                                        style={{ background: '#cf1322', borderColor: 'cf1322' }}
+                                        icon={<CloseOutlined />}
+                                    >
+                                        Hủy
+                                    </Button>
+                                </Popconfirm>
+                            )}
+                            <Popconfirm
+                                title="Xác nhận hành động?"
+                                onConfirm={() => handleMarkDelivered(record._id, nextStatus)}
+                                okText="Đồng ý"
+                                cancelText="Hủy"
+                            >
+                                <Button
+                                    type="primary"
+                                    // style={{ background: '#F6FFED', borderColor: '#F6FFED' }}
+                                    icon={<CheckOutlined />}
+                                >
+                                    {nextStatus.charAt(0).toLocaleUpperCase() + nextStatus.slice(1, nextStatus.length)}
+                                </Button>
+                            </Popconfirm>
+                        </div>
                     );
                 }
                 return null;
-            }
-        }
+            },
+        },
     ];
 
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('title')}>Quản Lý Đơn Hàng</h1>
             <div className={cx('tableContainer')}>
-                <Table 
+                <Table
                     columns={columns}
                     dataSource={orders}
                     rowKey="_id"
