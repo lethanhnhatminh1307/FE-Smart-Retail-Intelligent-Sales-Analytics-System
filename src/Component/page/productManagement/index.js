@@ -1,19 +1,28 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
-import { Table, Button, Input, Select, Modal, Tag, Space, Image } from 'antd';
+import { Table, Button, Input, Select, Modal, Tag, Space, Image, Tooltip, Spin } from 'antd';
 import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
     SearchOutlined,
     ReloadOutlined,
+    RiseOutlined,
 } from '@ant-design/icons';
 import ProductFormModal from './ProductFormModal';
-import { product as fetchProducts, deleteProduct, uploadProduct, modify as modifyAPI } from '~/api-server/productServer';
+import {
+    product as fetchProducts,
+    deleteProduct,
+    uploadProduct,
+    modify as modifyAPI,
+} from '~/api-server/productServer';
 import { Context } from '~/GlobalContext';
 import { CHANGEPRODUCT } from '~/GlobalContext/key';
 import { dotMoney } from '~/utils/dotMoney';
 import { notify } from '~/utils/notification';
 import './productManagement.css';
+
+import ReactMarkdown from 'react-markdown';
+import request from '~/utils/Api/request';
 
 const { Option } = Select;
 
@@ -27,6 +36,11 @@ function ProductManagement() {
     const [searchText, setSearchText] = useState('');
     const [filterType, setFilterType] = useState(null);
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [loadingModal, setLoadingModal] = useState(false);
+    const [analysis, setAnalysis] = useState('');
+
+    const [productName,setProductName] = useState('');
 
     // Fetch products
     const loadProducts = useCallback(async () => {
@@ -70,7 +84,6 @@ function ProductManagement() {
         }
     }, [products, filterType]);
 
-
     // Delete product
     const handleDelete = (record) => {
         Modal.confirm({
@@ -81,12 +94,7 @@ function ProductManagement() {
             cancelText: 'Hủy',
             async onOk() {
                 try {
-                    const data = await deleteProduct(
-                        record._id,
-                        record.number * 1,
-                        record.billId,
-                        record.itemId,
-                    );
+                    const data = await deleteProduct(record._id, record.number * 1, record.billId, record.itemId);
                     if (data) {
                         setProducts((prev) => prev.filter((item) => item._id !== data._id));
                         dispatch({ key: CHANGEPRODUCT, value: data });
@@ -136,6 +144,33 @@ function ProductManagement() {
     console.log('category:', category);
     console.log('filterType:', filterType);
 
+    const handleAnalyze = async (record) => {
+        setOpen(true);
+        setLoadingModal(true);
+
+        setProductName(record?.name);
+
+        console.log(record);
+        
+
+        try {
+            const response = await request.get(`analysis/${record?._id}`);
+
+        
+
+            if(response?.status === 200){
+                setAnalysis(response.data?.data);
+            }
+            
+
+        } catch (error) {
+            
+            setAnalysis('Không thể phân tích sản phẩm.');
+        } finally {
+            setLoadingModal(false);
+        }
+    };
+
     // Table columns
     const columns = [
         {
@@ -152,8 +187,8 @@ function ProductManagement() {
             align: 'center',
             render: (_, record) => {
                 console.log(record);
-                
-                const img = record?.variants?.[0]?.sku || ''
+
+                const img = record?.variants?.[0]?.sku || '';
                 return img ? (
                     <Image
                         src={img}
@@ -189,20 +224,24 @@ function ProductManagement() {
             key: 'price',
             width: 160,
             sorter: (a, b) => {
-                const minA = a.variants?.length ? Math.min(...a.variants.map(v => v.price || 0)) : 0;
-                const minB = b.variants?.length ? Math.min(...b.variants.map(v => v.price || 0)) : 0;
+                const minA = a.variants?.length ? Math.min(...a.variants.map((v) => v.price || 0)) : 0;
+                const minB = b.variants?.length ? Math.min(...b.variants.map((v) => v.price || 0)) : 0;
                 return minA - minB;
             },
             render: (_, record) => {
                 if (!record.variants || record.variants.length === 0) return '—';
-                const prices = record.variants.map(v => v.price).filter(p => p !== undefined && p !== null);
+                const prices = record.variants.map((v) => v.price).filter((p) => p !== undefined && p !== null);
                 if (prices.length === 0) return '—';
                 const minPrice = Math.min(...prices);
                 const maxPrice = Math.max(...prices);
                 if (minPrice === maxPrice) {
                     return <span className="product-price-cell">{dotMoney(minPrice)} VNĐ</span>;
                 }
-                return <span className="product-price-cell">{dotMoney(minPrice)} - {dotMoney(maxPrice)} VNĐ</span>;
+                return (
+                    <span className="product-price-cell">
+                        {dotMoney(minPrice)} - {dotMoney(maxPrice)} VNĐ
+                    </span>
+                );
             },
         },
         {
@@ -210,11 +249,13 @@ function ProductManagement() {
             key: 'color',
             width: 150,
             render: (_, record) => {
-                const colors = [...new Set((record.variants || []).map(v => v.color).filter(Boolean))];
+                const colors = [...new Set((record.variants || []).map((v) => v.color).filter(Boolean))];
                 return (
                     <span>
                         {colors.map((c, i) => (
-                            <Tag key={i} color="magenta">{c}</Tag>
+                            <Tag key={i} color="magenta">
+                                {c}
+                            </Tag>
                         ))}
                     </span>
                 );
@@ -243,7 +284,7 @@ function ProductManagement() {
             render: (_, record) => {
                 const total = (record.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0);
                 return <b>{total}</b>;
-            }
+            },
         },
         {
             title: 'Hành động',
@@ -252,19 +293,28 @@ function ProductManagement() {
             align: 'center',
             render: (_, record) => (
                 <Space className="action-buttons">
-                    <Button
-                        type="primary"
-                        ghost
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDelete(record)}
-                    />
+                    <Tooltip title="Sửa" placement="top">
+                        <Button
+                            type="primary"
+                            ghost
+                            size="small"
+                            icon={<EditOutlined />}
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+
+                    <Tooltip title="Xóa" placement="top">
+                        <Button danger size="small" icon={<DeleteOutlined />} onClick={() => handleDelete(record)} />
+                    </Tooltip>
+                    <Tooltip title="Tăng kho" placement="top">
+                        <Button
+                            type="primary"
+                            color="blue"
+                            size="small"
+                            icon={<RiseOutlined />}
+                            onClick={() => handleAnalyze(record)}
+                        />
+                    </Tooltip>
                 </Space>
             ),
         },
@@ -275,15 +325,28 @@ function ProductManagement() {
             {/* Header */}
             <div className="product-management__header">
                 <h1 className="product-management__title">Quản lý sản phẩm</h1>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    size="large"
-                    onClick={handleAdd}
-                >
+                <Button type="primary" icon={<PlusOutlined />} size="large" onClick={handleAdd}>
                     Thêm sản phẩm
                 </Button>
             </div>
+
+            <Modal title={`Phân tích sản phẩm - ${productName}`} open={open} onCancel={() => setOpen(false)} footer={null} width={750}>
+                {loadingModal ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 0' }}>
+                        <Spin />
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            maxHeight: 500,
+                            overflowY: 'auto',
+                            paddingRight: 8,
+                        }}
+                    >
+                        <ReactMarkdown>{analysis}</ReactMarkdown>
+                    </div>
+                )}
+            </Modal>
 
             {/* Toolbar: Search + Filter */}
             <div className="product-management__toolbar">
