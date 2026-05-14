@@ -306,7 +306,7 @@ function ProductManagement() {
                     <Tooltip title="Xóa" placement="top">
                         <Button danger size="small" icon={<DeleteOutlined />} onClick={() => handleDelete(record)} />
                     </Tooltip>
-                    <Tooltip title="Tăng kho" placement="top">
+                    <Tooltip title="Phân tích" placement="top">
                         <Button
                             type="primary"
                             color="blue"
