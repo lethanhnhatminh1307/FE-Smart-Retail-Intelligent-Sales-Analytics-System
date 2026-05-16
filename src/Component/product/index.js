@@ -25,7 +25,7 @@ function Product({ ...props }) {
             <h2 className={cx('title-product')}>SẢN PHẨM</h2>
             {data.map((item, index) => {
                 const image = item?.variants?.[0]?.sku || '';
-                const price = item?.variants?.[0]?.price || 0;
+                const price = item?.price || 0;
 
                 return (
                     <Link key={index} to={`/san-pham/${item.slug}`}>

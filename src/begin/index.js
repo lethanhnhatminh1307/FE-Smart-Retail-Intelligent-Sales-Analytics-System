@@ -81,7 +81,7 @@ function Begin() {
                                                     {/* <Link>Cập nhật quản lý</Link> */}
                                                 </Tippy>
                                                 {/* <Link to={'/quan-ly/tao-tai-khoan'}>Tạo tài khoản cho nhân viên</Link> */}
-                                                <Link to={'/quan-ly/vo-hieu-hoa-tai-khoan'}>Vô hiệu hóa tài khoản</Link>
+                                                <Link to={'/quan-ly/quan-ly-tai-khoan'}>Quản lý tài khoản</Link>
                                             </>
                                         )}
                                         {localStorage.role === 'manager' && (
@@ -111,7 +111,7 @@ function Begin() {
                                                    <Link> Tính năng quản lý</Link>
                                                 </Tippy>
                                                 <Link to={'/xem-hoa-don'}>Xem hóa đơn</Link> */}
-                                                <Link to={'/quan-ly/dashboard'}>Bảng Điều Khiển Lợi Nhuận</Link>
+                                                <Link to={'/quan-ly/dashboard'}>Thống kê</Link>
                                                 <Link to={'/quan-ly/don-hang'}>Quản lý đơn hàng</Link>
                                                 <Link to={'/quan-ly-san-pham'}>Quản lý sản phẩm</Link>
                                             </>

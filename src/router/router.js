@@ -153,7 +153,7 @@ export const layoutManager = [
     },
     {
         element: DisableAccount,
-        path: 'vo-hieu-hoa-tai-khoan',
+        path: 'quan-ly-tai-khoan',
     },
     {
         element: Category,

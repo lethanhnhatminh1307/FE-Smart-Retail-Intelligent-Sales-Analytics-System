@@ -284,6 +284,7 @@ function ProductFormModal({ open, onCancel, onSubmit, editingProduct, loading })
                                                         maxCount={1}
                                                         onPreview={handlePreview}
                                                         className="small-upload"
+                                                        accept="image/*"
                                                     >
                                                         <div>
                                                             <UploadOutlined />

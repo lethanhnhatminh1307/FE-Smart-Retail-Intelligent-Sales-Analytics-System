@@ -102,7 +102,7 @@ function InfoOfProduct({ typePayment, chooseProduct, type }, ref) {
                         <td className={cx('t-r')}>{dotMoney(cost - discount)} VNĐ</td>
                     </tr>
                     <tr>
-                        <td colSpan={3}>phương thức thanh toán: </td>
+                        <td colSpan={3}>Phương thức thanh toán: </td>
                         <td className={cx('t-r')}>
                             <select
                                 onChange={(e) => {

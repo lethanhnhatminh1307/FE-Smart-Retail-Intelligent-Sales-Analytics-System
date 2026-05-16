@@ -20,12 +20,12 @@ export const functions = [
         more: false,
         icon: false,
     },
-    {
-        name: 'Tin tức & Sự kiện',
-        path: '/tin-tuc-su-kien',
-        more: false,
-        icon: false,
-    },
+    // {
+    //     name: 'Tin tức & Sự kiện',
+    //     path: '/tin-tuc-su-kien',
+    //     more: false,
+    //     icon: false,
+    // },
     {
         name: 'Bộ sưu tập',
         path: '/bo-suu-tap',
