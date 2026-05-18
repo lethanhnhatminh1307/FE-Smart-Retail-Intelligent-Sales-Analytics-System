@@ -10,7 +10,7 @@ import { dotMoney } from '~/utils/dotMoney';
 
 const cx = classNames.bind(styles);
 
-function Pay({ totalCost }) {
+function Pay({ totalCost, idProducts }) {
     const navigate = useNavigate();
     const ipRef = useRef();
     const [address, setAddress] = useState();
@@ -67,27 +67,27 @@ function Pay({ totalCost }) {
                                 ishover
                                 w100
                                 onClick={() => {
-                                    navigate('/thanh-toan');
+                                    navigate('/thanh-toan', { state: idProducts });
                                 }}
                             >
                                 TIẾN HÀNH THANH TOÁN
                             </Button>
-                            <div className={cx('discount-code')}>
+                            {/* <div className={cx('discount-code')}>
                                 <span>
                                     <FontAwesomeIcon icon={faTag} />
                                 </span>
                                 <h4 className={cx('title-discount')}>Phiếu ưu đãi</h4>
-                            </div>
+                            </div> */}
                         </td>
                     </tr>
-                    <tr>
+                    {/* <tr>
                         <td colSpan={2} className={cx('contain-input-discount-code')}>
                             <Input placeholder="Nhập mã giảm giá" w100 gold classNames={cx('input-discount-code')} />
                             <Button w100 classNames={cx('confirm-discount-code')}>
                                 ÁP DỤNG
                             </Button>
                         </td>
-                    </tr>
+                    </tr> */}
                 </tbody>
             </table>
         </div>

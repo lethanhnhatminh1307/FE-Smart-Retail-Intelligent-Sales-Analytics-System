@@ -10,7 +10,7 @@ export const getProvince = async()=>{
         const data =  await axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province',{
             headers: {'Content-Type': 'application/json',Token: token}
         });
-        return data.data.data;
+        return data?.data?.data;
     } catch (error) {
         console.log(error);
     }

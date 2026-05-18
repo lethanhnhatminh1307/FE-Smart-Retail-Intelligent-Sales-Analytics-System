@@ -3,14 +3,14 @@ import classNames from 'classnames/bind';
 import { Context } from '~/GlobalContext';
 import { useContext, useState, forwardRef, useEffect } from 'react';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { dotMoney } from '~/utils/dotMoney';
 
 const cx = classNames.bind(styles);
 
-const codeDiscount = 'thanhandeptrai';
-
 function InfoOfProduct({ typePayment, chooseProduct, type }, ref) {
+    const location = useLocation();
+    const { state } = location;
     const [{ cart }, dispatch] = useContext(Context);
     const [choosedProducts, setChoosedProducts] = chooseProduct;
     const [discount, setDiscount] = useState(0);
@@ -38,31 +38,46 @@ function InfoOfProduct({ typePayment, chooseProduct, type }, ref) {
     };
     const handleDiscount = (e) => {
         const value = e.target.value;
-        if (value === codeDiscount) {
-            setDiscount(300);
-        }
+        // if (value === codeDiscount) {
+        //     setDiscount(300);
+        // }
     };
     //
     const cost = useMemo(() => {
         return choosedProducts.reduce((price, item) => price + item?.price * item.number, 0);
     }, [JSON.stringify(choosedProducts)]);
+
+    const newCart = (cart || []).filter((item) => state?.includes(item?.idProduct?._id));
+
+    useEffect(() => {
+        setChoosedProducts(newCart);
+    }, [setChoosedProducts]);
+
+    console.log(choosedProducts);
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('contain-products')}>
-                {cart.length > 0 ? (
-                    cart.map((item, index) => {
+                {newCart.length > 0 ? (
+                    newCart.map((item, index) => {
                         const chooseJson = JSON.stringify(choosedProducts);
                         const itemJson = JSON.stringify(item);
                         const product = item?.idProduct || {};
                         return (
                             <div key={index} className={cx('products')}>
-                                <input
+                                {/* <input
                                     item={itemJson}
                                     onChange={handleChangeChoose}
                                     type="checkbox"
                                     checked={chooseJson.includes(itemJson)}
-                                />
-                                <Link to={`/san-pham/${product?.slug}`} className={cx('product')}>
+                                /> */}
+                                <Link
+                                    to={`/san-pham/${product?.slug}`}
+                                    style={{
+                                        paddingLeft: '10px',
+                                    }}
+                                    className={cx('product')}
+                                >
                                     <img src={item?.image} />
                                     <div className={cx('info-of-product')}>
                                         <h4>{product?.name}</h4>

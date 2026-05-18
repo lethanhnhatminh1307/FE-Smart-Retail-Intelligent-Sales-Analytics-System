@@ -48,6 +48,19 @@ function OrderManagement() {
         }
     };
 
+    const getTitle = (status) => {
+        switch (status) {
+            case 'delivering':
+                return 'Giao hàng';
+            case 'delivered':
+                return 'Đã giao';
+            case 'returned':
+                return 'Hoàn hàng';
+            default:
+                return 'Đã hoàn hàng';
+        }
+    };
+
     const columns = [
         {
             title: 'Khách hàng',
@@ -114,6 +127,14 @@ function OrderManagement() {
                     color = 'error';
                     text = 'Đã hủy';
                 }
+                if (status === 'return') {
+                    color = 'warning';
+                    text = 'Đang hoàn hàng';
+                }
+                if (status === 'returned') {
+                    color = 'default';
+                    text = 'Đã hoàn hàng';
+                }
                 return <Tag color={color}>{text}</Tag>;
             },
         },
@@ -121,7 +142,7 @@ function OrderManagement() {
             title: 'Thao tác',
             key: 'action',
             render: (_, record) => {
-                if ((record.status !== 'delivered' && record.status !== 'cancelled') || !record.status) {
+                if ((record.status !== 'delivered' && record.status !== 'cancelled' && record.status !== 'returned') || !record.status) {
                     let nextStatus;
                     switch (record.status) {
                         case 'pending':
@@ -129,6 +150,9 @@ function OrderManagement() {
                             break;
                         case 'delivering':
                             nextStatus = 'delivered';
+                            break;
+                        case 'return':
+                            nextStatus = 'returned';
                             break;
                         default:
                             nextStatus = 'delivered';
@@ -167,7 +191,7 @@ function OrderManagement() {
                                     // style={{ background: '#F6FFED', borderColor: '#F6FFED' }}
                                     icon={<CheckOutlined />}
                                 >
-                                    {nextStatus.charAt(0).toLocaleUpperCase() + nextStatus.slice(1, nextStatus.length)}
+                                    {getTitle(nextStatus)}
                                 </Button>
                             </Popconfirm>
                         </div>

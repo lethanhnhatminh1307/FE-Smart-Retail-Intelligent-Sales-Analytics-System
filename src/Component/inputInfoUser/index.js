@@ -71,19 +71,19 @@ function InputInfoUser({address,setAddress,setAddressName}) {
         <h4>Địa chỉ</h4>
         <select className={cx('province')} onChange={handleChangeProvince}>
             <option >Chọn tỉnh thành</option>
-            {province.map((item,index) => {
+            {province?.map((item,index) => {
                 return <option value={`${item.ProvinceID} ${item.NameExtension[1]}`} key={index}>{item.NameExtension[1]}</option>
             })}
         </select>
         <select className={cx('district')} onChange={handleChangeDistrict} disabled={!address?.province}>
             <option>Chọn Huyện</option>
-            {district.map((item,index)=>{
+            {district?.map((item,index)=>{
                 return <option key={index} value={`${item.DistrictID} ${item.DistrictName}`}>{item.DistrictName}</option>
             })}
         </select>
         <select className={cx('village')} onChange={handleChangeVillage}  disabled={!address?.district}>
             <option >Chọn Xã</option>
-            {village.map((item, index) =>{
+            {village?.map((item, index) =>{
                 return <option key={index} value={`${item.WardCode} ${item.WardName}`}>{item.WardName}</option>
             })}
         </select>

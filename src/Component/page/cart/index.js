@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 import InfoProduct from './infoProduct';
 import Pay from './pay';
 
-import { useMemo, useContext } from 'react';
+import { useMemo, useContext, useState } from 'react';
 import { Context } from '~/GlobalContext';
 
 const cx = classNames.bind(styles);
@@ -11,20 +11,26 @@ const cx = classNames.bind(styles);
 function Cart() {
     const [states, dispatch] = useContext(Context);
 
+    const [idProducts, setIdProducts] = useState([]);
+
+    const newCart = (states?.cart || []).filter((item) => idProducts.includes(item?.idProduct?._id));
+
     const totalCost = useMemo(() => {
-        return states.cart.reduce((cost, item) => {
+        return newCart?.reduce((cost, item) => {
             const price = item.price ? item.price * item.number : 0;
             return cost + price;
         }, 0);
-    }, [states.cart]);
+    }, [newCart]);
+        
+
     return (
         <div className={cx('wrapper', { wrap: true })}>
             <div className={cx('contain', { grid: true })}>
                 <div className={cx('info-product')}>
-                    <InfoProduct data={[states, dispatch]} />
+                    <InfoProduct data={[states, dispatch]} setIdProducts={setIdProducts} />
                 </div>
                 <div className={cx('pay')}>
-                    <Pay totalCost={totalCost} />
+                    <Pay totalCost={totalCost} idProducts={idProducts} />
                 </div>
             </div>
         </div>

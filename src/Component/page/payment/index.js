@@ -46,8 +46,6 @@ function Payment() {
         if (agree) {
             (async () => {
                 const newData = choosedProducts.map((item) => {
-                    console.log(choosedProducts);
-
                     return {
                         productId: item?.idProduct?._id,
                         variantId: item?.variantId?._id || item?.variantId,

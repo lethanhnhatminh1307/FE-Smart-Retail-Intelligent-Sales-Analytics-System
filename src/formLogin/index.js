@@ -135,13 +135,13 @@ function FormLogin({
                     {titleButton}
                 </Button>
             </div>
-            <div className={cx('wall')}>
+            {/* <div className={cx('wall')}>
                 <span></span>
                 <p className={cx('or')}>HOẶC</p>
                 <span></span>
-            </div>
+            </div> */}
             <div className={cx('other-part')}>
-                <div className={cx('contain-btn-other-part')}>
+                {/* <div className={cx('contain-btn-other-part')}>
                     <Button classNames={cx('btn-other-part')}>
                         <FontAwesomeIcon className={cx('icon-btn')} icon={faFacebook} />
                         Facebook
@@ -150,7 +150,7 @@ function FormLogin({
                         <FontAwesomeIcon className={cx('icon-btn')} icon={faGoogle} />
                         Google
                     </Button>
-                </div>
+                </div> */}
                 {check && (
                     <>
                         <h4 className={cx('annouce-register')}>Bằng việc đăng kí, bạn đã đồng ý với Shopee về</h4>

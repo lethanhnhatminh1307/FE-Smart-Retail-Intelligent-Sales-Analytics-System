@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Button from '~/button';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import CountNumber from '~/Component/countNumber';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { remove } from '~/api-server/cartService';
 import { CART } from '~/GlobalContext/key';
 import Default from '~/announcement/accept';
@@ -15,7 +15,7 @@ import { dotMoney } from '~/utils/dotMoney';
 
 const cx = classNames.bind(styles);
 
-function InfoProduct({ data }) {
+function InfoProduct({ data, setIdProducts }) {
     const [states, dispatch] = data;
     const cart = states.cart;
     const [isShow, setIsShow] = useState(false);
@@ -58,6 +58,25 @@ function InfoProduct({ data }) {
         return changingProduct.length ? true : false;
     };
 
+    const handleChangeCheckbox = useCallback(
+        (e) => {
+            const value = e.target.value;
+            const checked = e.target.checked;
+
+            setIdProducts((prev) => {
+                let newData = [...prev];
+                if (checked) {
+                    newData.push(value);
+                } else {
+                    newData = newData.filter((item) => value !== item);
+                }
+
+                return newData;
+            });
+        },
+        [setIdProducts],
+    );
+
     useEffect(() => {
         if (agree) {
             (async function () {
@@ -85,13 +104,25 @@ function InfoProduct({ data }) {
                         <th className={cx('tac')}>SIZE</th>
                         <th className={cx('tac')}>MÀU</th>
                         <th className={cx('tac')}>SỐ LƯỢNG</th>
-                        <th className={cx('tar')}>TỔNG</th>
+                        <th className={cx('tac')}>TỔNG</th>
+                        <th
+                            style={
+                                {
+                                    // marginLeft: '3px'
+                                }
+                            }
+                            className={cx('tac')}
+                        >
+                            CHỌN
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {cart.map((item, index) => {
                         const to = `/san-pham/${item?.idProduct.slug}`;
                         const Tag = item.image?.includes('.mp4') ? 'video' : 'img';
+                        console.log(item);
+
                         return (
                             <tr key={index}>
                                 <td>
@@ -122,6 +153,18 @@ function InfoProduct({ data }) {
                                     />
                                 </td>
                                 <td className={cx('tar', 'fw6')}>{`${dotMoney(item.number * item?.price)} VNĐ`}</td>
+                                <td className={cx('tac', 'fw6')}>
+                                    <input
+                                        type="checkbox"
+                                        style={{
+                                            width: '15px',
+                                            height: '15px',
+                                            cursor: 'pointer',
+                                        }}
+                                        value={item?.idProduct?._id}
+                                        onChange={handleChangeCheckbox}
+                                    />
+                                </td>
                             </tr>
                         );
                     })}
